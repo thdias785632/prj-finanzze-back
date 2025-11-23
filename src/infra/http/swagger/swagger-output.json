@@ -1,0 +1,1277 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Finanzze Api",
+    "description": "Backend API for Finanzze"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "development"
+    }
+  ],
+  "paths": {
+    "/api/revenues/": {
+      "post": {
+        "tags": [
+          "Revenues"
+        ],
+        "summary": "Create a new expense",
+        "description": "Endpoint to create a expense.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/createRevenues"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/createRevenues"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Revenues"
+        ],
+        "summary": "Delete a revenues",
+        "description": "Endpoint to delete a revenues.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/revenues/get-by-id": {
+      "get": {
+        "tags": [
+          "Revenues"
+        ],
+        "summary": "List revenues",
+        "description": "Endpoint to list a revenues.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of revenues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getRevenues"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/getRevenues"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/revenues/get-by-user": {
+      "get": {
+        "tags": [
+          "Revenues"
+        ],
+        "summary": "List revenues",
+        "description": "Endpoint to list a revenues by userId.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "User Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of revenues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getRevenues"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/getRevenues"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/create": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create a new user",
+        "description": "Endpoint to create a new user.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/createUser"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/createUser"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/user/login": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Login",
+        "description": "Endpoint to login.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/loginUser"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/loginUser"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/card/": {
+      "post": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Create a new card",
+        "description": "Endpoint to create a card.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/createCard"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/createCard"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "Update a card",
+        "description": "Endpoint to update a card.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/updateCard"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/updateCard"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/card/get-by-id": {
+      "get": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "List cards",
+        "description": "Endpoint to list a card.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of Cards",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCards"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCards"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/card/get-by-user": {
+      "get": {
+        "tags": [
+          "Cards"
+        ],
+        "summary": "List cards",
+        "description": "Endpoint to list a card by userId.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "User Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of Cards",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCards"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCards"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/card-expenses/": {
+      "post": {
+        "tags": [
+          "CardExpensess"
+        ],
+        "summary": "Create a new card expense",
+        "description": "Endpoint to create a card expense.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/createCardExpense"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/createCardExpense"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CardExpensess"
+        ],
+        "summary": "Delete a cardExpenses",
+        "description": "Endpoint to Delete a cardExpenses.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/expensses/": {
+      "post": {
+        "tags": [
+          "Expensess"
+        ],
+        "summary": "Create a new expense",
+        "description": "Endpoint to create a expense.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/createExpenses"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/createExpenses"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Expensess"
+        ],
+        "summary": "Delete a expenses",
+        "description": "Endpoint to delete a expenses.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/expensses/get-by-id": {
+      "get": {
+        "tags": [
+          "Expensess"
+        ],
+        "summary": "List Expensess",
+        "description": "Endpoint to list a expenses.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of Expensess",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getExpensess"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/getExpensess"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/expensses/get-by-user": {
+      "get": {
+        "tags": [
+          "Expensess"
+        ],
+        "summary": "List Expensess",
+        "description": "Endpoint to list a expenses by userId.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "User Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of Expensess",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getExpensess"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/getExpensess"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/extract/complete-extract": {
+      "get": {
+        "tags": [
+          "Extracts"
+        ],
+        "summary": "Get a complete extract",
+        "description": "Endpoint to get a complete extract.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "User Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "description": "Month",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Extract found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCompleteExtract"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCompleteExtract"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/extract/complete-cards-extract": {
+      "get": {
+        "tags": [
+          "Extracts"
+        ],
+        "summary": "List Cards Extracts",
+        "description": "Endpoint to list a Card Extracts.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "User Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "description": "month",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of CardExpensess",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCardsExtract"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCardsExtract"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/extract/send-extract": {
+      "get": {
+        "tags": [
+          "Extracts"
+        ],
+        "summary": "Send Extract Mail",
+        "description": "Endpoint to send Extracts.",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "User Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/categories/": {
+      "post": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Create a new category",
+        "description": "Endpoint to create a category.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/createCategory"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/createCategory"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categories/get-by-user": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "List categories",
+        "description": "Endpoint to list a category by userId.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "description": "User Id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of Categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCategories"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/getCategories"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "createUser": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "email": {
+          "type": "string",
+          "example": "email@email.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "123456"
+        }
+      }
+    },
+    "loginUser": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "example": "email@email.com"
+        },
+        "password": {
+          "type": "string",
+          "example": "123456"
+        }
+      }
+    },
+    "createCard": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "active": {
+          "type": "boolean",
+          "example": "true"
+        },
+        "flag": {
+          "type": "string",
+          "example": "VISA"
+        }
+      }
+    },
+    "updateCard": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "userId": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "active": {
+          "type": "boolean",
+          "example": "true"
+        },
+        "flag": {
+          "type": "string",
+          "example": "VISA"
+        }
+      }
+    },
+    "createCardExpense": {
+      "type": "object",
+      "properties": {
+        "cardId": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "userId": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "value": {
+          "type": "number",
+          "example": 100
+        },
+        "installments": {
+          "type": "number",
+          "example": 1
+        },
+        "referenceDate": {
+          "type": "string",
+          "example": "2023-10-01T00:00:00Z"
+        },
+        "active": {
+          "type": "boolean",
+          "example": "true"
+        },
+        "recurrent": {
+          "type": "boolean",
+          "example": "false"
+        }
+      }
+    },
+    "createExpenses": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "value": {
+          "type": "number",
+          "example": 100
+        },
+        "referenceDate": {
+          "type": "string",
+          "example": "2023-10-01T00:00:00Z"
+        },
+        "endDate": {
+          "type": "string",
+          "example": "2023-10-01T00:00:00Z"
+        },
+        "active": {
+          "type": "boolean",
+          "example": "true"
+        },
+        "recurrent": {
+          "type": "boolean",
+          "example": "false"
+        }
+      }
+    },
+    "createRevenues": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "name": {
+          "type": "string",
+          "example": "John Doe"
+        },
+        "value": {
+          "type": "number",
+          "example": 100
+        },
+        "referenceDate": {
+          "type": "string",
+          "example": "2023-10-01T00:00:00Z"
+        },
+        "active": {
+          "type": "boolean",
+          "example": "true"
+        },
+        "recurrent": {
+          "type": "boolean",
+          "example": "false"
+        }
+      }
+    },
+    "createCategory": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "example": "1234567890"
+        },
+        "name": {
+          "type": "string",
+          "example": "John Doe"
+        }
+      }
+    },
+    "schemas": {
+      "getCards": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "ed253c67-dba9-4bc3-96a7-cbef7ecdf838"
+            },
+            "userId": {
+              "type": "string",
+              "example": "87749533-0527-4816-8f64-2bd4880ed580"
+            },
+            "name": {
+              "type": "string",
+              "example": "UNIQUE"
+            },
+            "active": {
+              "type": "boolean",
+              "example": true
+            },
+            "flag": {
+              "type": "string",
+              "example": "VISA"
+            }
+          }
+        },
+        "xml": {
+          "name": "getCards"
+        }
+      },
+      "getCardExpensess": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "ed253c67-dba9-4bc3-96a7-cbef7ecdf838"
+            },
+            "cardId": {
+              "type": "string",
+              "example": "87749533-0527-4816-8f64-2bd4880ed580"
+            },
+            "userId": {
+              "type": "string",
+              "example": "87749533-0527-4816-8f64-2bd4880ed580"
+            },
+            "name": {
+              "type": "string",
+              "example": "UNIQUE"
+            },
+            "value": {
+              "type": "number",
+              "example": 100
+            },
+            "installments": {
+              "type": "number",
+              "example": 1
+            },
+            "referenceDate": {
+              "type": "string",
+              "example": "2023-10-01T00:00:00Z"
+            },
+            "active": {
+              "type": "boolean",
+              "example": true
+            },
+            "recurrent": {
+              "type": "boolean",
+              "example": false
+            }
+          }
+        },
+        "xml": {
+          "name": "getCardExpensess"
+        }
+      },
+      "getExpensess": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "ed253c67-dba9-4bc3-96a7-cbef7ecdf838"
+            },
+            "userId": {
+              "type": "string",
+              "example": "87749533-0527-4816-8f64-2bd4880ed580"
+            },
+            "name": {
+              "type": "string",
+              "example": "UNIQUE"
+            },
+            "value": {
+              "type": "number",
+              "example": 100
+            },
+            "referenceDate": {
+              "type": "string",
+              "example": "2023-10-01T00:00:00Z"
+            },
+            "endDate": {
+              "type": "string",
+              "example": "2023-10-01T00:00:00Z"
+            },
+            "active": {
+              "type": "boolean",
+              "example": true
+            },
+            "recurrent": {
+              "type": "boolean",
+              "example": false
+            }
+          }
+        },
+        "xml": {
+          "name": "getExpensess"
+        }
+      },
+      "getCompleteExtract": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "totalExpensesss": {
+              "type": "number",
+              "example": 127.65
+            },
+            "totalRevenues": {
+              "type": "number",
+              "example": 127.65
+            },
+            "revenues": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Maquina"
+                  },
+                  "value": {
+                    "type": "number",
+                    "example": 127.65
+                  }
+                }
+              }
+            },
+            "cardExpensess": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Maquina"
+                  },
+                  "value": {
+                    "type": "number",
+                    "example": 127.65
+                  }
+                }
+              }
+            },
+            "fixedExpensess": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Maquina"
+                  },
+                  "value": {
+                    "type": "number",
+                    "example": 127.65
+                  }
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "getCompleteExtract"
+        }
+      },
+      "getRevenues": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "ed253c67-dba9-4bc3-96a7-cbef7ecdf838"
+            },
+            "userId": {
+              "type": "string",
+              "example": "87749533-0527-4816-8f64-2bd4880ed580"
+            },
+            "name": {
+              "type": "string",
+              "example": "Salário"
+            },
+            "value": {
+              "type": "number",
+              "example": 100
+            },
+            "referenceDate": {
+              "type": "string",
+              "example": "2023-10-01T00:00:00Z"
+            },
+            "active": {
+              "type": "boolean",
+              "example": true
+            },
+            "recurrent": {
+              "type": "boolean",
+              "example": false
+            }
+          }
+        },
+        "xml": {
+          "name": "getRevenues"
+        }
+      },
+      "getCardsExtract": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "card": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "ed253c67-dba9-4bc3-96a7-cbef7ecdf838"
+                },
+                "userId": {
+                  "type": "string",
+                  "example": "87749533-0527-4816-8f64-2bd4880ed580"
+                },
+                "name": {
+                  "type": "string",
+                  "example": "UNIQUE"
+                },
+                "active": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "flag": {
+                  "type": "string",
+                  "example": "VISA"
+                }
+              }
+            },
+            "total": {
+              "type": "number",
+              "example": 100
+            },
+            "cardExpensess": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "example": "ed253c67-dba9-4bc3-96a7-cbef7ecdf838"
+                  },
+                  "cardId": {
+                    "type": "string",
+                    "example": "87749533-0527-4816-8f64-2bd4880ed580"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "example": "87749533-0527-4816-8f64-2bd4880ed580"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "UNIQUE"
+                  },
+                  "value": {
+                    "type": "number",
+                    "example": 100
+                  },
+                  "installments": {
+                    "type": "number",
+                    "example": 1
+                  },
+                  "referenceDate": {
+                    "type": "string",
+                    "example": "2023-10-01T00:00:00Z"
+                  },
+                  "active": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "recurrent": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "xml": {
+          "name": "getCardsExtract"
+        }
+      },
+      "getCategories": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "ed253c67-dba9-4bc3-96a7-cbef7ecdf838"
+            },
+            "userId": {
+              "type": "string",
+              "example": "87749533-0527-4816-8f64-2bd4880ed580"
+            },
+            "name": {
+              "type": "string",
+              "example": "Alimentação"
+            }
+          }
+        },
+        "xml": {
+          "name": "getCategories"
+        }
+      }
+    }
+  }
+}

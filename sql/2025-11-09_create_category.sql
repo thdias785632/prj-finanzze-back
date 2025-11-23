@@ -1,0 +1,11 @@
+CREATE TABLE categories (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL,
+    name CHARACTER VARYING(15) NOT NULL
+);
+
+ALTER TABLE card_expenses
+ADD COLUMN category CHARACTER VARYING(15);
+
+ALTER TABLE expenses
+ADD COLUMN category CHARACTER VARYING(15);
