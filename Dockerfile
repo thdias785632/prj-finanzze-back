@@ -23,6 +23,8 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
+# Ensure JSON swagger file is copied into dist so runtime can require it
+RUN mkdir -p dist/infra/http/swagger && cp src/infra/http/swagger/swagger-output.json dist/infra/http/swagger/swagger-output.json
 
 ## Runner: smaller final image with only runtime libs
 FROM node:18-bullseye-slim AS runner

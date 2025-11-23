@@ -10,6 +10,7 @@
     "start": "ts-node-dev src/index.ts",
     "start:prod": "node dist/index.js",
     "build": "tsc",
+  "postbuild": "node ./scripts/copy-assets.js",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "swagger": "ts-node ./src/infra/http/swagger/swagger.ts",

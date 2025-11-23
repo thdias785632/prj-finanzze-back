@@ -5,7 +5,7 @@ import routes from './infra/http/routes';
 import dotenv from 'dotenv';
 import './app/database-injection/injection';
 import swaggerUi from 'swagger-ui-express';
-import swaggerFile from "../src/infra/http/swagger/swagger-output.json"
+import swaggerFile from "./infra/http/swagger/swagger-output.json";
 import cron from 'node-cron';
 import { DailyReportService } from './app/services/daily-report/daily-report';
 import { container } from './app/database-injection/injection';
