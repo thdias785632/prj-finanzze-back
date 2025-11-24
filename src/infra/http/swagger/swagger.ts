@@ -11,8 +11,8 @@ const doc = {
   },
   servers: [
     {
-      url: process.env.URL || 'http://localhost:3000',
-      description: process.env.ENV || 'development',
+      url: process.env.URL,
+      description: process.env.ENV,
     },
   ],
   components: {

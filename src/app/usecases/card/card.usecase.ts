@@ -24,12 +24,8 @@ export class CardUseCase implements CardUseCaseInterface {
         await this.cardRepository.create(card);
     }
 
-    async findByUserId(userId: string): Promise<CardDto[] | Error> {
+    async findByUserId(userId: string): Promise<CardDto[]> {
         const cards  = await this.cardRepository.findByUserId(userId);
-
-        if (!cards) {
-            throw new Error('Card not found');
-        };
 
         return cards;
     }
