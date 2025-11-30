@@ -38,13 +38,14 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
     };
 
     const referenceDate = new Date(month);
+
     referenceDate.setHours(referenceDate.getHours() + 3);
     
     const expensess = await this.mapExpensess(extract, userId, referenceDate);
 
     const cardExpenses = await this.mapCardExpenses(extract, userId, referenceDate);
 
-    await this.mapRecurrentExpenses(extract, cardExpenses, expensess);
+    await this.mapRecurrentExpenses(extract, cardExpenses, expensess, referenceDate);
     
     const revenues = await this.mapRevenues(extract, userId, referenceDate);
 
@@ -139,10 +140,11 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
   private async mapRecurrentExpenses(
     extract: CompleteExtractDTO, 
     cardExpenses: CardExpensesDto[], 
-    expensess: ExpensessDTO[]
+    expensess: ExpensessDTO[],
+    refererenceDate: Date
   ) {
     for (const cardExpense of cardExpenses.filter((expense) => expense.recurrent)) {
-      if (!cardExpense.active) {
+      if (!cardExpense.active || cardExpense.referenceDate > refererenceDate) {
         continue;
       }
       
@@ -158,7 +160,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
     }
 
     for (const expenses of expensess.filter((expense) => expense.recurrent)) {
-      if (!expenses.active) {
+      if (!expenses.active || expenses.referenceDate > refererenceDate) {
         continue;
       }
       
