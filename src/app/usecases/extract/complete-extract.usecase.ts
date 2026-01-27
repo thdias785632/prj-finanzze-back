@@ -65,7 +65,11 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
       const reference = format(referenceDate, 'MM/yyyy');
       const month = format(new Date(expenses.referenceDate), 'MM/yyyy');
       
-      if (!expenses.active || expenses.recurrent || month !== reference) {
+      if(!expenses.active && month === reference) {
+        continue;
+      }
+
+      if (expenses.recurrent || month !== reference) {
         continue;
       }
 
@@ -75,7 +79,10 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
         id: expenses.id,
         name: expenses.name,
         value: expenses.value,
-        category: expenses.category
+        category: expenses.category,
+        referenceDate: expenses.referenceDate,
+        active: expenses.active,
+        recurrent: expenses.recurrent,
       })
     }
 
@@ -93,7 +100,11 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
       const reference = format(referenceDate, 'MM/yyyy');
       const date = new Date(cardExpense.referenceDate);
       
-      if (!cardExpense.active || cardExpense.recurrent) {
+      if (!cardExpense.active && reference === format(date, "MM/yyyy")) {
+        continue;
+      }
+
+      if (cardExpense.recurrent) {
         continue;
       }
 
@@ -114,7 +125,12 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
             id: cardExpense.id,
             name: cardExpense.name,
             value: cardExpense.value,
-            category: cardExpense.category
+            category: cardExpense.category,
+            referenceDate: cardExpense.referenceDate,
+            active: cardExpense.active,
+            installments: cardExpense.installments,
+            recurrent: cardExpense.recurrent,
+            cardId: cardExpense.cardId,
           })
         }
 
@@ -129,7 +145,11 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
           id: cardExpense.id,
           name: cardExpense.name,
           value: cardExpense.value,
-          category: cardExpense.category
+          category: cardExpense.category,
+          referenceDate: cardExpense.referenceDate,
+          active: cardExpense.active,
+          installments: cardExpense.installments,
+          recurrent: cardExpense.recurrent,
         })
       }
     }
@@ -144,7 +164,11 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
     refererenceDate: Date
   ) {
     for (const cardExpense of cardExpenses.filter((expense) => expense.recurrent)) {
-      if (!cardExpense.active || cardExpense.referenceDate > refererenceDate) {
+      if (!cardExpense.active && format(cardExpense.referenceDate, 'MM/yyyy') === format(refererenceDate, 'MM/yyyy')) {
+        continue;
+      }
+      
+      if (cardExpense.referenceDate > refererenceDate) {
         continue;
       }
       
@@ -155,7 +179,12 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
         id: cardExpense.id,
         name: cardExpense.name,
         value: cardExpense.value,
-        category: cardExpense.category
+        category: cardExpense.category,
+        referenceDate: cardExpense.referenceDate,
+        active: cardExpense.active,
+        installments: cardExpense.installments,
+        recurrent: cardExpense.recurrent,
+        cardId: cardExpense.cardId,
       });
     }
 
@@ -170,7 +199,10 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
         id: expenses.id,
         name: expenses.name,
         value: expenses.value,
-        category: expenses.category
+        category: expenses.category,
+        referenceDate: expenses.referenceDate,
+        active: expenses.active,
+        recurrent: expenses.recurrent,
       });
     }
   }
@@ -186,7 +218,11 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
       const reference = format(referenceDate, 'MM/yyyy');
       const month = format(new Date(revenue.referenceDate), 'MM/yyyy');
 
-      if (!revenue.active || revenue.recurrent || month !== reference) {
+      if(!revenue.active && month === reference) {
+        continue;
+      }
+
+      if (revenue.recurrent || month !== reference) {
         continue;
       }
 
@@ -196,6 +232,9 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
         id: revenue.id,
         name: revenue.name,
         value: revenue.value,
+        referenceDate: revenue.referenceDate,
+        active: revenue.active,
+        recurrent: revenue.recurrent,
       });
     }
 
@@ -207,7 +246,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
     revenues: RevenuesDTO[]
   ): Promise<void> {
     for (const revenue of revenues.filter((revenue) => revenue.recurrent)) {
-      if (!revenue.active) {
+      if (!revenue.active && format(revenue.referenceDate, 'MM/yyyy') === format(new Date(), 'MM/yyyy')) {
         continue;
       }
 
@@ -217,6 +256,9 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
         id: revenue.id,
         name: revenue.name,
         value: revenue.value,
+        referenceDate: revenue.referenceDate,
+        active: revenue.active,
+        recurrent: revenue.recurrent,
       });
     }
   }

@@ -11,5 +11,10 @@ export interface Itens {
     id: string;
     name: string;
     value: number;
-    category: string
+    category: string;
+    referenceDate: Date;
+    active: boolean;
+    installments?: number;
+    recurrent: boolean;
+    cardId?: string;
 }

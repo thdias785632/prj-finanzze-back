@@ -10,8 +10,8 @@ export interface CardExpensesDto {
     installmentsActual?: number;
     referenceDate: Date;
     category: string;
-    active?: boolean;
-    recurrent?: boolean;
+    active: boolean;
+    recurrent: boolean;
     createdAt?: Date;
 }
 
