@@ -21,6 +21,20 @@ expensessRoute.post('/', async (request: Request, response: Response) => {
     */
 });
 
+expensessRoute.put('/', async (request: Request, response: Response) => {
+    const controller = new ExpensessController(useCase);
+
+    await controller.update(request, response);
+    // #swagger.tags = ['Expensess']
+    // #swagger.summary = 'Update a new expense'
+    // #swagger.description = 'Endpoint to update a expense.'
+    /* #swagger.requestBody = {
+            required: true,
+            schema: { $ref: "#/components/createExpenses" }
+        } 
+    */
+});
+
 expensessRoute.get('/get-by-id', async (request: Request, response: Response) => {
     const controller = new ExpensessController(useCase);
 

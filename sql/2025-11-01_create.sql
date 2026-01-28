@@ -36,7 +36,6 @@ CREATE TABLE IF NOT EXISTS expenses (
   name VARCHAR(255) NOT NULL,
   value DOUBLE PRECISION NOT NULL CHECK (value >= 0),
   reference_date DATE NOT NULL,
-  end_date DATE,
   active BOOLEAN NOT NULL,
   recurrent BOOLEAN NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

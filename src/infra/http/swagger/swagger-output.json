@@ -8,7 +8,11 @@
   "servers": [
     {
       "url": "http://localhost:3000",
-      "description": "production"
+      "description": "Ambiente Local"
+    },
+    {
+      "url": "https://prj-finanzze-back-production.up.railway.app",
+      "description": "Ambiente Produção"
     }
   ],
   "paths": {
@@ -421,6 +425,36 @@
         ],
         "summary": "Create a new expense",
         "description": "Endpoint to create a expense.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/createExpenses"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/createExpenses"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Expensess"
+        ],
+        "summary": "Update a new expense",
+        "description": "Endpoint to update a expense.",
         "responses": {
           "201": {
             "description": "Created"
@@ -881,10 +915,6 @@
           "type": "string",
           "example": "2023-10-01T00:00:00Z"
         },
-        "endDate": {
-          "type": "string",
-          "example": "2023-10-01T00:00:00Z"
-        },
         "active": {
           "type": "boolean",
           "example": "true"
@@ -1038,10 +1068,6 @@
               "example": 100
             },
             "referenceDate": {
-              "type": "string",
-              "example": "2023-10-01T00:00:00Z"
-            },
-            "endDate": {
               "type": "string",
               "example": "2023-10-01T00:00:00Z"
             },

@@ -16,6 +16,16 @@ export default class ExpensessController implements ExpensessControllerInterface
         }
     };
 
+    async update(req: any, res: any): Promise<any> {
+        try {
+            await this.useCase.update(req.body);
+
+            return res.status(201).json({ message: 'Expensess updated successfully' });
+        } catch (error: any) {
+            res.status(error.status ? error.status : 500).json({ message: error.message ? error.message : 'Internal Server Error' });
+        }
+    };
+
     async findByUserId(req: any, res: any): Promise<any> {
         try {
             const expensess = await this.useCase.findByUserId(req.query.userId);

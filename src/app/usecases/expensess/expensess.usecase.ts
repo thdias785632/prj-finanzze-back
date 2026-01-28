@@ -19,7 +19,6 @@ export default class ExpensessUseCase implements ExpensessUseCaseInterface {
             name: input.name,
             value: input.value,
             referenceDate: input.referenceDate,
-            endDate: input.endDate || null,
             active: input.active,
             recurrent: input.recurrent,
             category: input.category,
@@ -27,6 +26,22 @@ export default class ExpensessUseCase implements ExpensessUseCaseInterface {
         };
 
         await this.expensessRepository.create(expenses);
+    }
+
+    async update(input: inputUpdateExpensess): Promise<void> {
+        const expenses: ExpensessDTO = {
+            id: input.id,
+            userId: input.userId,
+            name: input.name,
+            value: input.value,
+            referenceDate: input.referenceDate,
+            active: input.active,
+            recurrent: input.recurrent,
+            category: input.category,
+            updatedAt: new Date()
+        };
+     
+        await this.expensessRepository.update(expenses);
     }
 
     async findByUserId(userId: string): Promise<ExpensessDTO[]> {

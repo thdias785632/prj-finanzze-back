@@ -11,8 +11,12 @@ const doc = {
   },
   servers: [
     {
-      url: process.env.URL,
-      description: process.env.ENV,
+      url: 'http://localhost:3000',
+      description: 'Ambiente Local',
+    },
+    {
+      url: 'https://prj-finanzze-back-production.up.railway.app',
+      description: 'Ambiente Produção',
     },
   ],
   components: {
@@ -148,10 +152,6 @@ const doc = {
           type: 'string',
           example: '2023-10-01T00:00:00Z',
         },
-        endDate: {
-          type: 'string',
-          example: '2023-10-01T00:00:00Z',
-        },
         active: {
           type: 'boolean',
           example: 'true',
@@ -235,7 +235,6 @@ const doc = {
         name: "UNIQUE",
         value: 100.00,
         referenceDate: "2023-10-01T00:00:00Z",
-        endDate: "2023-10-01T00:00:00Z",
         active: true,
         recurrent: false
       }

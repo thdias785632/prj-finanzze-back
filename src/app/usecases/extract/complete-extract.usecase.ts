@@ -49,7 +49,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
     
     const revenues = await this.mapRevenues(extract, userId, referenceDate);
 
-    await this.mapRecurrentRevenues(extract, revenues);
+    await this.mapRecurrentRevenues(extract, revenues, referenceDate);
 
     return extract
   }
@@ -65,7 +65,17 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
       const reference = format(referenceDate, 'MM/yyyy');
       const month = format(new Date(expenses.referenceDate), 'MM/yyyy');
       
-      if(!expenses.active && month === reference) {
+      if(!expenses.active && format(new Date(), 'MM/yyyy') === reference) {
+        extract.fixedExpensess.push({
+          id: expenses.id,
+          name: expenses.name,
+          value: expenses.value,
+          category: expenses.category,
+          referenceDate: expenses.referenceDate,
+          active: expenses.active,
+          recurrent: expenses.recurrent,
+        })
+
         continue;
       }
 
@@ -100,7 +110,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
       const reference = format(referenceDate, 'MM/yyyy');
       const date = new Date(cardExpense.referenceDate);
       
-      if (!cardExpense.active && reference === format(date, "MM/yyyy")) {
+      if (!cardExpense.active && reference === format(new Date(), "MM/yyyy")) {
         continue;
       }
 
@@ -164,7 +174,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
     refererenceDate: Date
   ) {
     for (const cardExpense of cardExpenses.filter((expense) => expense.recurrent)) {
-      if (!cardExpense.active && format(cardExpense.referenceDate, 'MM/yyyy') === format(refererenceDate, 'MM/yyyy')) {
+      if (!cardExpense.active && format(new Date(), 'MM/yyyy') === format(refererenceDate, 'MM/yyyy')) {
         continue;
       }
       
@@ -189,7 +199,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
     }
 
     for (const expenses of expensess.filter((expense) => expense.recurrent)) {
-      if (!expenses.active || expenses.referenceDate > refererenceDate) {
+      if (!expenses.active && format(new Date(), 'MM/yyyy') === format(refererenceDate, 'MM/yyyy')) {
         continue;
       }
       
@@ -218,7 +228,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
       const reference = format(referenceDate, 'MM/yyyy');
       const month = format(new Date(revenue.referenceDate), 'MM/yyyy');
 
-      if(!revenue.active && month === reference) {
+      if(!revenue.active && format(new Date(), 'MM/yyyy') === reference) {
         continue;
       }
 
@@ -243,10 +253,11 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
 
   private async mapRecurrentRevenues(
     extract: CompleteExtractDTO,
-    revenues: RevenuesDTO[]
+    revenues: RevenuesDTO[],
+    referenceDate: Date
   ): Promise<void> {
     for (const revenue of revenues.filter((revenue) => revenue.recurrent)) {
-      if (!revenue.active && format(revenue.referenceDate, 'MM/yyyy') === format(new Date(), 'MM/yyyy')) {
+      if (!revenue.active && format(new Date(), 'MM/yyyy') === format(referenceDate, 'MM/yyyy')) {
         continue;
       }
 

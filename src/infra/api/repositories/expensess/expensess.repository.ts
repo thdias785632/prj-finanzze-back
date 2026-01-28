@@ -18,7 +18,6 @@ export class ExpensessRepository implements ExpensessRepositoryInterface {
                 name,
                 value,
                 reference_date,
-                end_date,
                 active,
                 recurrent,
                 created_at,
@@ -33,8 +32,7 @@ export class ExpensessRepository implements ExpensessRepositoryInterface {
                 $6,
                 $7,
                 $8,
-                $9,
-                $10
+                $9
             )
             `, [
                 expensess.id, 
@@ -42,7 +40,6 @@ export class ExpensessRepository implements ExpensessRepositoryInterface {
                 expensess.name,
                 expensess.value,
                 expensess.referenceDate,
-                expensess.endDate,
                 expensess.active,
                 expensess.recurrent,
                 expensess.createdAt,
@@ -51,6 +48,38 @@ export class ExpensessRepository implements ExpensessRepositoryInterface {
         );
 
         await client.end();
+    }
+
+    async update(expensses: ExpensessDTO): Promise<void> {
+        const client = this.database.connect();
+
+        await client.connect();
+
+        await client.query(
+            `
+            UPDATE expenses
+            SET
+                user_id = $2,
+                name = $3,
+                value = $4,
+                reference_date = $5,
+                active = $6,
+                recurrent = $7,
+                updated_at = $8,
+                category = $9
+            WHERE id = $1
+            `, [
+                expensses.id,
+                expensses.userId,
+                expensses.name,
+                expensses.value,
+                expensses.referenceDate,
+                expensses.active,
+                expensses.recurrent,
+                expensses.updatedAt,
+                expensses.category
+            ]
+        );
     }
 
     async findByUserId(userId: string): Promise<ExpensessDTO[]> {
@@ -108,7 +137,6 @@ export class ExpensessRepository implements ExpensessRepositoryInterface {
                 name: row.name,
                 value: row.value,
                 referenceDate: row.reference_date,
-                endDate: row.end_date,
                 active: row.active,
                 recurrent: row.recurrent,
                 createdAt: row.created_at,

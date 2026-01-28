@@ -2,6 +2,7 @@ import { ExpensessDTO } from "../../../../domain/expensess/dto/expensess.dto";
 
 export default interface ExpensessUseCaseInterface {
     create(input: inputCreateExpensess): Promise<void>
+    update(input: inputUpdateExpensess): Promise<void>
     findByUserId(userId: string): Promise<ExpensessDTO[] | Error>
     findById(id: string): Promise<ExpensessDTO | Error>
     delete(id: string): Promise<void>
@@ -12,7 +13,6 @@ export interface inputCreateExpensess {
     name: string;
     value: number;
     referenceDate: Date; 
-    endDate: Date; 
     active: boolean;
     recurrent: boolean;
     category: string;
@@ -24,7 +24,7 @@ export interface inputUpdateExpensess {
     name: string;
     value: number;
     referenceDate: Date; 
-    endDate: Date; 
     active: boolean;
     recurrent: boolean;
+    category: string;
 }
