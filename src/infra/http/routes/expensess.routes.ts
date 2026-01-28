@@ -26,7 +26,7 @@ expensessRoute.put('/', async (request: Request, response: Response) => {
 
     await controller.update(request, response);
     // #swagger.tags = ['Expensess']
-    // #swagger.summary = 'Update a new expense'
+    // #swagger.summary = 'Update a expense'
     // #swagger.description = 'Endpoint to update a expense.'
     /* #swagger.requestBody = {
             required: true,
