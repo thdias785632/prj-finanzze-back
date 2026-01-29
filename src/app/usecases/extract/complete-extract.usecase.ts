@@ -65,6 +65,10 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
       const reference = format(referenceDate, 'MM/yyyy');
       const month = format(new Date(expenses.referenceDate), 'MM/yyyy');
       
+      if (expenses.recurrent || month !== reference) {
+        continue;
+      }
+
       if(!expenses.active && format(new Date(), 'MM/yyyy') === reference) {
         extract.fixedExpensess.push({
           id: expenses.id,
@@ -76,10 +80,6 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
           recurrent: expenses.recurrent,
         })
 
-        continue;
-      }
-
-      if (expenses.recurrent || month !== reference) {
         continue;
       }
 
@@ -109,12 +109,24 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
     for (const cardExpense of cardExpenses) {
       const reference = format(referenceDate, 'MM/yyyy');
       const date = new Date(cardExpense.referenceDate);
-      
-      if (!cardExpense.active && reference === format(new Date(), "MM/yyyy")) {
-        continue;
-      }
 
       if (cardExpense.recurrent) {
+        continue;
+      }
+      
+      if (!cardExpense.active && reference === format(new Date(), "MM/yyyy")) {
+        extract.cardExpensess.push({
+          id: cardExpense.id,
+          name: cardExpense.name,
+          value: cardExpense.value,
+          category: cardExpense.category,
+          referenceDate: cardExpense.referenceDate,
+          active: cardExpense.active,
+          installments: cardExpense.installments,
+          recurrent: cardExpense.recurrent,
+          cardId: cardExpense.cardId,
+        })
+        
         continue;
       }
 
@@ -160,6 +172,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
           active: cardExpense.active,
           installments: cardExpense.installments,
           recurrent: cardExpense.recurrent,
+          cardId: cardExpense.cardId,
         })
       }
     }
@@ -175,6 +188,18 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
   ) {
     for (const cardExpense of cardExpenses.filter((expense) => expense.recurrent)) {
       if (!cardExpense.active && format(new Date(), 'MM/yyyy') === format(refererenceDate, 'MM/yyyy')) {
+        extract.cardExpensess.push({
+          id: cardExpense.id,
+          name: cardExpense.name,
+          value: cardExpense.value,
+          category: cardExpense.category,
+          referenceDate: cardExpense.referenceDate,
+          active: cardExpense.active,
+          installments: cardExpense.installments,
+          recurrent: cardExpense.recurrent,
+          cardId: cardExpense.cardId,
+        });
+        
         continue;
       }
       
@@ -200,6 +225,16 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
 
     for (const expenses of expensess.filter((expense) => expense.recurrent)) {
       if (!expenses.active && format(new Date(), 'MM/yyyy') === format(refererenceDate, 'MM/yyyy')) {
+        extract.fixedExpensess.push({
+          id: expenses.id,
+          name: expenses.name,
+          value: expenses.value,
+          category: expenses.category,
+          referenceDate: expenses.referenceDate,
+          active: expenses.active,
+          recurrent: expenses.recurrent,
+        });
+        
         continue;
       }
       

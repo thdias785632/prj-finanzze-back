@@ -55,6 +55,43 @@ export class CardExpensesRepository implements CardExpensesRepositoryInterface {
         await client.end();
     };
 
+    async update(card: CardExpensesDto): Promise<void> {
+        const client = this.database.connect();
+
+        await client.connect();
+
+        await client.query(
+            `
+            UPDATE card_expenses
+            SET
+                card_id = $2,
+                user_id = $3,
+                name = $4,
+                value = $5,
+                installments = $6,
+                reference_date = $7,
+                active = $8,
+                category = $9,
+                recurrent = $10,
+                updated_at = $11
+            WHERE id = $1
+            `, [
+                card.id,
+                card.cardId,
+                card.userId,
+                card.name,
+                card.value,
+                card.installments,
+                card.referenceDate,
+                card.active,
+                card.category,
+                card.recurrent,
+                card.updatedAt
+            ]);
+            
+        await client.end();
+    }
+
     async findByUserId(userId: string): Promise<CardExpensesDto[]> {
         const client = this.database.connect();
 

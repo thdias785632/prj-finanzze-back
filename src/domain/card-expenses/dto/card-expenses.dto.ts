@@ -13,6 +13,7 @@ export interface CardExpensesDto {
     active: boolean;
     recurrent: boolean;
     createdAt?: Date;
+    updatedAt?: Date;
 }
 
 export interface CardExtractDto {

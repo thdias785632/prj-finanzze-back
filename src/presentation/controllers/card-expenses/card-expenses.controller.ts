@@ -16,6 +16,16 @@ export default class CardExpensesController implements CardExpensesControllerInt
         }
     };
 
+    async update(req: any, res: any): Promise<any> {
+        try {
+            await this.useCase.update(req.body);
+
+            return res.status(201).json({ message: 'CardExpenses updated successfully' });
+        } catch (error: any) {
+            res.status(error.status ? error.status : 500).json({ message: error.message ? error.message : 'Internal Server Error' });
+        }
+    };
+
     async delete(req: any, res: any): Promise<any> {
         try {
             await this.useCase.delete(req.query.id);

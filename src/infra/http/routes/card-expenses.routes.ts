@@ -21,6 +21,20 @@ cardExpensesRoute.post('/', async (request: Request, response: Response) => {
     */
 });
 
+cardExpensesRoute.put('/', async (request: Request, response: Response) => {
+    const controller = new CardExpensesController(useCase);
+
+    await controller.update(request, response);
+    // #swagger.tags = ['CardExpensess']
+    // #swagger.summary = 'Update a card expense'
+    // #swagger.description = 'Endpoint to update a card expense.'
+    /* #swagger.requestBody = {
+            required: true,
+            schema: { $ref: "#/components/createCardExpense" }
+        } 
+    */
+});
+
 cardExpensesRoute.delete('/', async (request: Request, response: Response) => {
     const controller = new CardExpensesController(useCase);
 
