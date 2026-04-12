@@ -6,6 +6,8 @@ import { extractRoute } from './extract.routes';
 import { expensessRoute } from './expensess.routes';
 import { revenuesRoute } from './revenues.routes';
 import { categoriesRoute } from './categories.routes';
+import { categoriaInvestimentoRoute } from './categoria-investimento.routes';
+import { investimentoRoute } from './investimento.routes';
 
 const api = Router();
 
@@ -16,5 +18,7 @@ api.use('/api/card-expenses', cardExpensesRoute);
 api.use('/api/expensses', expensessRoute);
 api.use('/api/extract', extractRoute);
 api.use('/api/categories', categoriesRoute);
+api.use('/api/categoria-investimento', categoriaInvestimentoRoute);
+api.use('/api/investimento', investimentoRoute);
 
 export default Router().use('', api);

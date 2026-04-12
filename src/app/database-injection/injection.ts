@@ -25,6 +25,14 @@ import CategoriesUseCaseInterface from '../@shared/categories/usecases/categorie
 import { CategoriesUseCase } from '../usecases/categories/categories.usecase';
 import { CategoriesRepository } from '../../infra/api/repositories/categories/categories-repository';
 import { DailyReportService } from '../services/daily-report/daily-report';
+import { CategoriaInvestimentoRepositoryInterface } from '../@shared/categoria-investimento/repository/categoria-investimento.repository.interface';
+import CategoriaInvestimentoUseCaseInterface from '../@shared/categoria-investimento/usecases/categoria-investimento.usecase.interface';
+import { CategoriaInvestimentoUseCase } from '../usecases/categoria-investimento/categoria-investimento.usecase';
+import { CategoriaInvestimentoRepository } from '../../infra/api/repositories/categoria-investimento/categoria-investimento.repository';
+import { InvestimentoRepositoryInterface } from '../@shared/investimento/repository/investimento.repository.interface';
+import InvestimentoUseCaseInterface from '../@shared/investimento/usecases/investimento.usecase.interface';
+import { InvestimentoUseCase } from '../usecases/investimento/investimento.usecase';
+import { InvestimentoRepository } from '../../infra/api/repositories/investimento/investimento.repository';
 
 const container = new Container();
 
@@ -49,5 +57,11 @@ container.bind<CategoriesRepositoryInterface>('CategoriesRepository').to(Categor
 container.bind<CategoriesUseCaseInterface>('CategoriesUseCase').to(CategoriesUseCase).inSingletonScope();
 
 container.bind('DailyReportService').to(DailyReportService).inSingletonScope();
+
+container.bind<CategoriaInvestimentoRepositoryInterface>('CategoriaInvestimentoRepository').to(CategoriaInvestimentoRepository).inSingletonScope();
+container.bind<CategoriaInvestimentoUseCaseInterface>('CategoriaInvestimentoUseCase').to(CategoriaInvestimentoUseCase).inSingletonScope();
+
+container.bind<InvestimentoRepositoryInterface>('InvestimentoRepository').to(InvestimentoRepository).inSingletonScope();
+container.bind<InvestimentoUseCaseInterface>('InvestimentoUseCase').to(InvestimentoUseCase).inSingletonScope();
 
 export { container };
