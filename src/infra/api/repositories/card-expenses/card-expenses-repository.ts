@@ -23,6 +23,7 @@ export class CardExpensesRepository implements CardExpensesRepositoryInterface {
                 active,
                 category,
                 recurrent,
+                pluggy_transaction_id,
                 created_at
             )
             VALUES (
@@ -36,8 +37,10 @@ export class CardExpensesRepository implements CardExpensesRepositoryInterface {
                 $8,
                 $9,
                 $10,
-                $11
+                $11,
+                $12
             )
+            ON CONFLICT (pluggy_transaction_id) DO NOTHING
             `, [
                 cardExpense.id, 
                 cardExpense.cardId, 
@@ -49,6 +52,7 @@ export class CardExpensesRepository implements CardExpensesRepositoryInterface {
                 cardExpense.active,
                 cardExpense.category,
                 cardExpense.recurrent,
+                cardExpense.pluggyTransactionId,
                 cardExpense.createdAt
             ]);
     
@@ -139,6 +143,40 @@ export class CardExpensesRepository implements CardExpensesRepositoryInterface {
         await client.end();
     };
 
+    async findByPluggyTransactionId(pluggyTransactionId: string): Promise<CardExpensesDto | undefined> {
+        const client = this.database.connect();
+
+        await client.connect();
+
+        const { rows } = await client.query(
+            `
+            SELECT * FROM card_expenses WHERE pluggy_transaction_id = $1
+            `, [pluggyTransactionId]);
+
+        await client.end();
+
+        const mapped = this.mapRowToCardExpense(rows);
+
+        return mapped[0];
+    };
+
+    async deleteByPluggyTransactionIds(pluggyTransactionIds: string[]): Promise<void> {
+        if (pluggyTransactionIds.length === 0) return;
+
+        const client = this.database.connect();
+
+        await client.connect();
+
+        await client.query(
+            `
+            DELETE FROM card_expenses
+            WHERE pluggy_transaction_id = ANY($1::varchar[])
+            `, [pluggyTransactionIds]
+        );
+
+        await client.end();
+    };
+
     private mapRowToCardExpense(row: any[]): CardExpensesDto[] {
         return row.map((row) => {
             return {
@@ -147,11 +185,12 @@ export class CardExpensesRepository implements CardExpensesRepositoryInterface {
                 userId: row.user_id,
                 name: row.name,
                 value: Number(row.value),
-                installments: Number(row.installments),
+                installments: row.installments !== null ? Number(row.installments) : undefined,
                 referenceDate: row.reference_date,
                 active: row.active,
                 category: row.category,
                 recurrent: row.recurrent,
+                pluggyTransactionId: row.pluggy_transaction_id,
                 createdAt: row.created_at
             }
         });

@@ -25,6 +25,7 @@ export class CardExpensesUseCase implements CardExpensesUseCaseInterface {
             referenceDate: input.referenceDate,
             recurrent: input.recurrent,
             active: input.active,
+            pluggyTransactionId: input.pluggyTransactionId,
             createdAt: new Date()
         };
 
