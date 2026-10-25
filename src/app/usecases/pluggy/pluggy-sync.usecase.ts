@@ -33,7 +33,6 @@ export const CATEGORY_MAP: Record<string, string> = {
     "Food delivery": Category.Delivery,
     "Gas stations": Category.Carro,
     "Gyms and fitnes": Category.Saúde,
-    "Online shopping": Category.Outros,
     "Parking": Category.Carro,
     "Pet supplies an": Category.Boizinho,
     "Pharmacies": Category.Saúde,
@@ -43,12 +42,13 @@ export const CATEGORY_MAP: Record<string, string> = {
     "Tickets": Category.Lazer,
     "Vehicle mainten": Category.Carro,
     "Wellness and fi": Category.Saúde,
+    "Groceries": Category.Alimentação,
 };
 
-function mapCategory(pluggyCategory?: string): string {
+export function mapCategory(pluggyCategory?: string): string {
     if (!pluggyCategory) return Category.Outros;
 
-    const mapped = CATEGORY_MAP[pluggyCategory];
+    const mapped = CATEGORY_MAP[pluggyCategory] || "Outros";
 
     return (mapped || pluggyCategory).slice(0, 15);
 }
