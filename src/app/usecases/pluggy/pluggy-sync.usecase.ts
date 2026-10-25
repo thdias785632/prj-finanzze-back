@@ -8,7 +8,7 @@ import CardExpensesUseCaseInterface from "../../@shared/card-expenses/usecase/ca
 import { PluggyTransactionDto } from "../../../domain/pluggy/dto/pluggy.dto";
 import { CardDto } from "../../../domain/card/dto/card.dto";
 
-enum Category {
+export enum Category {
     Moradia = "Moradia",
     Boizinho = "Boizinho",
     Transporte = "Transporte",
@@ -25,7 +25,7 @@ enum Category {
     Carro = "Carro",
 }
 
-const CATEGORY_MAP: Record<string, string> = {
+export const CATEGORY_MAP: Record<string, string> = {
     "Automotive": Category.Carro,
     "Accomodation": Category.Lazer,
     "Airport and air": Category.Lazer,

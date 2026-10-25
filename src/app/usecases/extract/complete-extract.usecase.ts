@@ -10,6 +10,7 @@ import { ExpensessDTO } from "../../../domain/expensess/dto/expensess.dto";
 import { RevenuesRepositoryInterface } from "../../@shared/revenues/repositories/revenues.repository.interface";
 import { RevenuesDTO } from "../../../domain/revenues/dto/revenues.dto";
 import { CardRepositoryInterface } from "../../@shared/card/repository/card-repository.interface";
+import { CATEGORY_MAP } from "../pluggy/pluggy-sync.usecase";
 
 @injectable() 
 export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
@@ -74,7 +75,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
           id: expenses.id,
           name: expenses.name,
           value: expenses.value,
-          category: expenses.category,
+          category: CATEGORY_MAP[expenses.category] || expenses.category,
           referenceDate: expenses.referenceDate,
           active: expenses.active,
           recurrent: expenses.recurrent,
@@ -89,7 +90,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
         id: expenses.id,
         name: expenses.name,
         value: expenses.value,
-        category: expenses.category,
+        category: CATEGORY_MAP[expenses.category] || expenses.category,
         referenceDate: expenses.referenceDate,
         active: expenses.active,
         recurrent: expenses.recurrent,
@@ -119,7 +120,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
           id: cardExpense.id,
           name: cardExpense.name,
           value: cardExpense.value,
-          category: cardExpense.category,
+          category: CATEGORY_MAP[cardExpense.category] || cardExpense.category,
           referenceDate: cardExpense.referenceDate,
           active: cardExpense.active,
           installments: cardExpense.installments,
@@ -147,7 +148,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
             id: cardExpense.id,
             name: cardExpense.name,
             value: cardExpense.value,
-            category: cardExpense.category,
+            category: CATEGORY_MAP[cardExpense.category] || cardExpense.category,
             referenceDate: cardExpense.referenceDate,
             active: cardExpense.active,
             installments: cardExpense.installments,
@@ -167,7 +168,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
           id: cardExpense.id,
           name: cardExpense.name,
           value: cardExpense.value,
-          category: cardExpense.category,
+          category: CATEGORY_MAP[cardExpense.category] || cardExpense.category,
           referenceDate: cardExpense.referenceDate,
           active: cardExpense.active,
           installments: cardExpense.installments,
@@ -192,7 +193,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
           id: cardExpense.id,
           name: cardExpense.name,
           value: cardExpense.value,
-          category: cardExpense.category,
+          category: CATEGORY_MAP[cardExpense.category] || cardExpense.category,
           referenceDate: cardExpense.referenceDate,
           active: cardExpense.active,
           installments: cardExpense.installments,
@@ -214,7 +215,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
         id: cardExpense.id,
         name: cardExpense.name,
         value: cardExpense.value,
-        category: cardExpense.category,
+        category: CATEGORY_MAP[cardExpense.category] || cardExpense.category,
         referenceDate: cardExpense.referenceDate,
         active: cardExpense.active,
         installments: cardExpense.installments,
@@ -229,7 +230,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
           id: expenses.id,
           name: expenses.name,
           value: expenses.value,
-          category: expenses.category,
+          category: CATEGORY_MAP[expenses.category] || expenses.category,
           referenceDate: expenses.referenceDate,
           active: expenses.active,
           recurrent: expenses.recurrent,
@@ -244,7 +245,7 @@ export class CompleteExtractUseCase implements CompleteExtractUseCaseInterface {
         id: expenses.id,
         name: expenses.name,
         value: expenses.value,
-        category: expenses.category,
+        category: CATEGORY_MAP[expenses.category] || expenses.category,
         referenceDate: expenses.referenceDate,
         active: expenses.active,
         recurrent: expenses.recurrent,
