@@ -8,26 +8,45 @@ import CardExpensesUseCaseInterface from "../../@shared/card-expenses/usecase/ca
 import { PluggyTransactionDto } from "../../../domain/pluggy/dto/pluggy.dto";
 import { CardDto } from "../../../domain/card/dto/card.dto";
 
-// Mapeia a categoria (livre, mais longa) da Pluggy pra caber na coluna `category`
-// do nosso banco, que hoje é CHARACTER VARYING(15) (ver categories table).
+enum Category {
+    Moradia = "Moradia",
+    Boizinho = "Boizinho",
+    Transporte = "Transporte",
+    Saúde = "Saúde",
+    Internet = "Internet",
+    Delivery = "Delivery",
+    Alimentação = "Alimentação",
+    Beleza = "Beleza",
+    Assinaturas = "Assinaturas",
+    Lazer = "Lazer",
+    Outros = "Outros",
+    Vestuário = "Vestuário",
+    Dívidas = "Dívidas",
+    Carro = "Carro",
+}
+
 const CATEGORY_MAP: Record<string, string> = {
-    "Food and drinks": "Alimentação",
-    "Groceries": "Mercado",
-    "Restaurants and bars": "Restaurante",
-    "Transportation": "Transporte",
-    "Fuel": "Transporte",
-    "Health": "Saúde",
-    "Entertainment": "Lazer",
-    "Shopping": "Compras",
-    "Services": "Serviços",
-    "Bills and utilities": "Contas",
-    "Education": "Educação",
-    "Travel": "Viagem",
-    "Electronics": "Eletrônicos"
+    "Automotive": Category.Carro,
+    "Accomodation": Category.Lazer,
+    "Airport and air": Category.Lazer,
+    "Car rental": Category.Lazer,
+    "Food delivery": Category.Delivery,
+    "Gas stations": Category.Carro,
+    "Gyms and fitnes": Category.Saúde,
+    "Online shopping": Category.Outros,
+    "Parking": Category.Carro,
+    "Pet supplies an": Category.Boizinho,
+    "Pharmacies": Category.Saúde,
+    "Pharmacy": Category.Saúde,
+    "Public transpor": Category.Transporte,
+    "Taxi and ride-h": Category.Transporte,
+    "Tickets": Category.Lazer,
+    "Vehicle mainten": Category.Carro,
+    "Wellness and fi": Category.Saúde,
 };
 
 function mapCategory(pluggyCategory?: string): string {
-    if (!pluggyCategory) return "Outros";
+    if (!pluggyCategory) return Category.Outros;
 
     const mapped = CATEGORY_MAP[pluggyCategory];
 
@@ -49,13 +68,10 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         private cardExpensesUseCase: CardExpensesUseCaseInterface
     ) {}
 
-    // Busca completa do histórico - usada quando um usuário/cartão é conectado pela 1ª vez.
     async syncAccountRetroactive(cardId: string): Promise<void> {
         await this.syncAccount(cardId, {});
     }
 
-    // Busca incremental (só transações a partir de uma data) - usada pelo cron de reconciliação
-    // e como fallback de segurança.
     async syncAccountIncremental(cardId: string, sinceISO?: string): Promise<void> {
         await this.syncAccount(cardId, { dateFrom: sinceISO });
     }
@@ -67,36 +83,29 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
 
         let cursor: string | undefined = undefined;
 
-        do {
-            const page = await this.pluggyClient.fetchTransactionsPage(card.pluggyAccountId, {
-                cursor,
-                dateFrom: options.dateFrom,
-                pageSize: 500
-            });
+        const pageData = await this.pluggyClient.fetchTransactionsPage(card.pluggyAccountId, {
+            cursor,
+            dateFrom: options.dateFrom,
+            pageSize: 500
+        });
 
-            for (const transaction of page.results) {
-                await this.upsertTransaction(card, transaction);
-            }
-
-            cursor = page.nextCursor || undefined;
-        } while (cursor);
+        for (const transaction of pageData.results) {
+            await this.upsertTransaction(card, transaction);
+        };
     }
 
-    // Evento `transactions/created`: a Pluggy manda um link pronto pra gente paginar.
     async syncFromCreatedLink(link: string): Promise<void> {
         const transactions = await this.pluggyClient.fetchTransactionsFromLink(link);
 
         await this.upsertTransactionsGroupedByAccount(transactions);
     }
 
-    // Evento `transactions/updated`: a Pluggy manda só os IDs que mudaram.
     async syncByTransactionIds(transactionIds: string[]): Promise<void> {
         const transactions = await this.pluggyClient.fetchTransactionsByIds(transactionIds);
 
         await this.upsertTransactionsGroupedByAccount(transactions);
     }
 
-    // Evento `transactions/deleted`.
     async removeByTransactionIds(transactionIds: string[]): Promise<void> {
         await this.cardExpensesRepository.deleteByPluggyTransactionIds(transactionIds);
     }
@@ -124,8 +133,6 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
     private async upsertTransaction(card: CardDto, transaction: PluggyTransactionDto): Promise<void> {
         const existing = await this.cardExpensesRepository.findByPluggyTransactionId(transaction.id);
 
-        // Convenção da Pluggy: em contas de cartão de crédito, compras (despesas) vêm com
-        // amount negativo. Guardamos sempre como valor positivo, igual ao cadastro manual.
         const value = Math.abs(transaction.amount);
 
         if (existing) {
@@ -159,8 +166,6 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         });
     }
 
-    // Rede de segurança: roda no cron, para todas as conexões ativas, buscando só os
-    // últimos dias (evita reprocessar o histórico inteiro toda vez).
     async syncAllActiveConnections(): Promise<void> {
         const connections = await this.pluggyConnectionRepository.findAllActive();
         const RECONCILE_LOOKBACK_DAYS = Number(process.env.PLUGGY_RECONCILE_LOOKBACK_DAYS || 3);

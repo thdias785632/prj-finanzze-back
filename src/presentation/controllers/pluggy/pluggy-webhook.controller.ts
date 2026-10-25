@@ -20,6 +20,8 @@ export default class PluggyWebhookController {
     };
 
     private async process(payload: any): Promise<void> {
+        console.log(`[pluggy-webhook] Evento recebido: ${payload?.event}`, payload);
+        
         switch (payload.event) {
             case 'transactions/created':
                 await this.syncUseCase.syncFromCreatedLink(payload.createdTransactionsLink);

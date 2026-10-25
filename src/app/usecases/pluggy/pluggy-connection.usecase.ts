@@ -21,16 +21,11 @@ export class PluggyConnectionUseCase implements PluggyConnectionUseCaseInterface
         private pluggySyncUseCase: PluggySyncUseCaseInterface
     ) {}
 
-    // Vincula um Item já existente na Pluggy (criado via Pluggy Connect ou, no caso da conta
-    // demo/sandbox, diretamente pelo Dashboard da Pluggy) a um usuário do Finanzze.
-    // - cria (ou atualiza) o registro de conexão em `pluggy_items`
-    // - cria automaticamente um `card` pra cada conta do tipo CREDIT encontrada no Item
-    // - dispara a busca retroativa (histórico completo) pra cada card novo
-    // - garante que o webhook está registrado na Pluggy, pra manter tudo sincronizado depois
     async connectItem(input: inputConnectItem): Promise<void> {
         const itemStatus = await this.pluggyClient.fetchItem(input.itemId);
-
+        
         let connection = await this.pluggyConnectionRepository.findByItemId(input.itemId);
+        
         const connectionId = connection?.id || randomUUID();
 
         if (!connection) {
@@ -54,6 +49,7 @@ export class PluggyConnectionUseCase implements PluggyConnectionUseCaseInterface
         }
 
         const accounts = await this.pluggyClient.fetchAccounts(input.itemId);
+
         const creditAccounts = accounts.filter((account) => account.type === 'CREDIT');
 
         for (const account of creditAccounts) {
@@ -73,7 +69,6 @@ export class PluggyConnectionUseCase implements PluggyConnectionUseCaseInterface
             }
 
             if (card) {
-                // Novo usuário/cartão: traz o histórico inteiro disponível na Pluggy.
                 await this.pluggySyncUseCase.syncAccountRetroactive(card.id);
             }
         }

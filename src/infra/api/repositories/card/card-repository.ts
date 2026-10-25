@@ -39,7 +39,7 @@ export class CardRepository implements CardRepositoryInterface {
         return [];
     };
 
-    async findById(id: string): Promise<any | undefined> {
+    async findById(id: string): Promise<CardDto | undefined> {
         const client = this.database.connect();
 
         await client.connect();
@@ -52,7 +52,7 @@ export class CardRepository implements CardRepositoryInterface {
         await client.end();
         
         if(rows.length > 0){
-            return rows.map((row) => this.mapRowToCard(row));
+            return this.mapRowToCard(rows[0]);
         };
 
         return undefined;

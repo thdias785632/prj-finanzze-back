@@ -391,6 +391,36 @@
           }
         }
       },
+      "put": {
+        "tags": [
+          "CardExpensess"
+        ],
+        "summary": "Update a card expense",
+        "description": "Endpoint to update a card expense.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/createCardExpense"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/createCardExpense"
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "tags": [
           "CardExpensess"
@@ -453,7 +483,7 @@
         "tags": [
           "Expensess"
         ],
-        "summary": "Update a new expense",
+        "summary": "Update a expense",
         "description": "Endpoint to update a expense.",
         "responses": {
           "201": {
@@ -777,6 +807,259 @@
           },
           "500": {
             "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/categoria-investimento/": {
+      "post": {
+        "tags": [
+          "CategoriaInvestimento"
+        ],
+        "summary": "Criar categoria de investimento",
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CategoriaInvestimento"
+        ],
+        "summary": "Deletar categoria de investimento",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/categoria-investimento/get-by-user": {
+      "get": {
+        "tags": [
+          "CategoriaInvestimento"
+        ],
+        "summary": "Listar categorias por usuário",
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/categoria-investimento/get-by-id": {
+      "get": {
+        "tags": [
+          "CategoriaInvestimento"
+        ],
+        "summary": "Buscar categoria por id",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/investimento/": {
+      "post": {
+        "tags": [
+          "Investimento"
+        ],
+        "summary": "Criar ativo de investimento",
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Investimento"
+        ],
+        "summary": "Atualizar ativo de investimento",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Investimento"
+        ],
+        "summary": "Deletar ativo de investimento",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/investimento/get-by-user": {
+      "get": {
+        "tags": [
+          "Investimento"
+        ],
+        "summary": "Listar ativos por usuário",
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/investimento/get-by-id": {
+      "get": {
+        "tags": [
+          "Investimento"
+        ],
+        "summary": "Buscar ativo por id",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/pluggy/connections": {
+      "post": {
+        "tags": [
+          "Pluggy"
+        ],
+        "summary": "Conecta um Item da Pluggy a um usuário",
+        "description": "Vincula um Item (conexão bancária) já existente na Pluggy ao usuário, cria os cards de crédito correspondentes e dispara a busca retroativa de despesas.",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "itemId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pluggy/webhook": {
+      "post": {
+        "tags": [
+          "Pluggy"
+        ],
+        "summary": "Webhook de eventos da Pluggy",
+        "description": "Endpoint chamado pela Pluggy quando há novas transações, atualizações ou exclusões.",
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }

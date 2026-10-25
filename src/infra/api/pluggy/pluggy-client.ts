@@ -99,8 +99,6 @@ export class PluggyClient implements PluggyClientInterface {
         if (options.createdAtFrom) params.set("createdAtFrom", options.createdAtFrom);
         if (options.dateFrom) params.set("from", options.dateFrom);
 
-        params.set("pageSize", String(options.pageSize || 500));
-
         const data = await this.request<{ results: PluggyTransactionDto[]; cursor?: string | null; nextCursor?: string | null; total?: number }>(
             `/v2/transactions?${params.toString()}`
         );
@@ -141,7 +139,9 @@ export class PluggyClient implements PluggyClientInterface {
     }
 
     async ensureWebhook(url: string): Promise<void> {
-        const webhooks = await this.request<Array<{ id: string; url: string; event: string }>>("/webhooks");
+        const webhooksData = await this.request<{ results: { id: string; url: string; event: string }[] }>("/webhooks");
+
+        const webhooks = webhooksData.results || [];
 
         const events = ["transactions/created", "transactions/updated", "transactions/deleted", "item/updated"];
 
