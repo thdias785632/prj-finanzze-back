@@ -12,9 +12,9 @@ export class CardRepository implements CardRepositoryInterface {
 
         await client.query(
             `
-            INSERT INTO card (id, user_id, name, active, flag)
-            VALUES ($1, $2, $3, $4, $5)
-            `, [card.id, card.userId, card.name, card.active, card.flag]);
+            INSERT INTO card (id, user_id, name, active, flag, pluggy_item_id, pluggy_account_id)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `, [card.id, card.userId, card.name, card.active, card.flag, card.pluggyItemId, card.pluggyAccountId]);
     
         await client.end();
     };
@@ -33,21 +33,13 @@ export class CardRepository implements CardRepositoryInterface {
         await client.end();
 
         if(rows.length > 0){
-            return rows.map((row) => {
-                return {
-                    id: row.id,
-                    userId: row.user_id,
-                    name: row.name,
-                    active: row.active,
-                    flag: row.flag
-                }
-            });
+            return rows.map((row) => this.mapRowToCard(row));
         };
 
         return [];
     };
 
-    async findById(id: string): Promise<any | undefined> {
+    async findById(id: string): Promise<CardDto | undefined> {
         const client = this.database.connect();
 
         await client.connect();
@@ -60,16 +52,27 @@ export class CardRepository implements CardRepositoryInterface {
         await client.end();
         
         if(rows.length > 0){
-            return rows.map((row) => {
-                return {
-                    id: row.id,
-                    userId: row.user_id,
-                    name: row.name,
-                    active: row.active,
-                    flag: row.flag
-                }
-            });
+            return this.mapRowToCard(rows[0]);
         };
+
+        return undefined;
+    };
+
+    async findByPluggyAccountId(pluggyAccountId: string): Promise<CardDto | undefined> {
+        const client = this.database.connect();
+
+        await client.connect();
+
+        const { rows } = await client.query(
+            `
+            SELECT * FROM card WHERE pluggy_account_id = $1
+            `, [pluggyAccountId]);
+
+        await client.end();
+
+        if (rows.length > 0) {
+            return this.mapRowToCard(rows[0]);
+        }
 
         return undefined;
     };
@@ -87,4 +90,16 @@ export class CardRepository implements CardRepositoryInterface {
 
         await client.end();
     };
+
+    private mapRowToCard(row: any): CardDto {
+        return {
+            id: row.id,
+            userId: row.user_id,
+            name: row.name,
+            active: row.active,
+            flag: row.flag,
+            pluggyItemId: row.pluggy_item_id,
+            pluggyAccountId: row.pluggy_account_id
+        };
+    }
 }

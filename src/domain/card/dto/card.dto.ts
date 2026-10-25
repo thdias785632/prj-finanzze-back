@@ -4,4 +4,6 @@ export interface CardDto {
     name: string;
     active: boolean;
     flag: string;
+    pluggyItemId?: string;
+    pluggyAccountId?: string;
 }

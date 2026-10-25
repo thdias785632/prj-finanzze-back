@@ -4,5 +4,6 @@ export interface CardRepositoryInterface {
     create(card: CardDto): Promise<void>
     findByUserId(userId: string): Promise<CardDto[]>
     findById(id: string): Promise<CardDto | undefined>
+    findByPluggyAccountId(pluggyAccountId: string): Promise<CardDto | undefined>
     update(card: CardDto): Promise<void>
 }

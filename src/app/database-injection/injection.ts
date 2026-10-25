@@ -33,6 +33,13 @@ import { InvestimentoRepositoryInterface } from '../@shared/investimento/reposit
 import InvestimentoUseCaseInterface from '../@shared/investimento/usecases/investimento.usecase.interface';
 import { InvestimentoUseCase } from '../usecases/investimento/investimento.usecase';
 import { InvestimentoRepository } from '../../infra/api/repositories/investimento/investimento.repository';
+import { PluggyClientInterface } from '../@shared/pluggy/client/pluggy-client.interface';
+import { PluggyClient } from '../../infra/api/pluggy/pluggy-client';
+import { PluggyConnectionRepositoryInterface } from '../@shared/pluggy/repository/pluggy-connection-repository.interface';
+import { PluggyConnectionRepository } from '../../infra/api/repositories/pluggy/pluggy-connection-repository';
+import { PluggySyncUseCaseInterface, PluggyConnectionUseCaseInterface } from '../@shared/pluggy/usecase/pluggy.usecase.interface';
+import { PluggySyncUseCase } from '../usecases/pluggy/pluggy-sync.usecase';
+import { PluggyConnectionUseCase } from '../usecases/pluggy/pluggy-connection.usecase';
 
 const container = new Container();
 
@@ -63,5 +70,10 @@ container.bind<CategoriaInvestimentoUseCaseInterface>('CategoriaInvestimentoUseC
 
 container.bind<InvestimentoRepositoryInterface>('InvestimentoRepository').to(InvestimentoRepository).inSingletonScope();
 container.bind<InvestimentoUseCaseInterface>('InvestimentoUseCase').to(InvestimentoUseCase).inSingletonScope();
+
+container.bind<PluggyClientInterface>('PluggyClient').to(PluggyClient).inSingletonScope();
+container.bind<PluggyConnectionRepositoryInterface>('PluggyConnectionRepository').to(PluggyConnectionRepository).inSingletonScope();
+container.bind<PluggySyncUseCaseInterface>('PluggySyncUseCase').to(PluggySyncUseCase).inSingletonScope();
+container.bind<PluggyConnectionUseCaseInterface>('PluggyConnectionUseCase').to(PluggyConnectionUseCase).inSingletonScope();
 
 export { container };

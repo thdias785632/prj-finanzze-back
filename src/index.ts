@@ -9,6 +9,7 @@ import swaggerFile from "./infra/http/swagger/swagger-output.json";
 import cron from 'node-cron';
 import { DailyReportService } from './app/services/daily-report/daily-report';
 import { container } from './app/database-injection/injection';
+import { PluggySyncUseCaseInterface } from './app/@shared/pluggy/usecase/pluggy.usecase.interface';
 
 dotenv.config();
 
@@ -60,5 +61,26 @@ cron.schedule('0 0 8 * * *', async() => {
     console.log('Running daily completed');    
   } catch (error) {
     console.error('Error executing daily report service:', error);
+  }
+});
+
+// Rede de segurança para a integração com a Pluggy: o mecanismo principal de sincronização
+// é o webhook (near real-time, ver /api/pluggy/webhook). Esse cron existe apenas para o caso
+// de algum webhook falhar/se perder (a Pluggy tenta reenviar 3x, mas não é garantido).
+// Por isso roda de tempos em tempos (default 30min), e não a cada minuto: rodar a cada minuto
+// bateria na API da Pluggy sem necessidade e sem trazer dado nenhum mais rápido.
+const PLUGGY_SYNC_CRON = process.env.PLUGGY_SYNC_CRON || '*/30 * * * *';
+
+cron.schedule(PLUGGY_SYNC_CRON, async () => {
+  console.log('Running pluggy reconciliation job at', new Date().toISOString());
+
+  try {
+    const pluggySyncUseCase = container.get('PluggySyncUseCase') as PluggySyncUseCaseInterface;
+
+    await pluggySyncUseCase.syncAllActiveConnections();
+
+    console.log('Pluggy reconciliation completed');
+  } catch (error) {
+    console.error('Error executing pluggy reconciliation job:', error);
   }
 });

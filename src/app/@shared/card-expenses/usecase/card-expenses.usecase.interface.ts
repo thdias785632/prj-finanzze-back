@@ -14,6 +14,7 @@ export interface inputCreateCardExpenses {
     category: string;
     active: boolean;
     recurrent: boolean;
+    pluggyTransactionId?: string;
 }
 
 export interface inputUpdateCardExpenses {

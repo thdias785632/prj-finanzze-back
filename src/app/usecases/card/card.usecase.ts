@@ -18,7 +18,9 @@ export class CardUseCase implements CardUseCaseInterface {
             userId: input.userId,
             name: input.name,
             active: input.active,
-            flag: input.flag
+            flag: input.flag,
+            pluggyItemId: input.pluggyItemId,
+            pluggyAccountId: input.pluggyAccountId
         };
 
         await this.cardRepository.create(card);
@@ -28,6 +30,10 @@ export class CardUseCase implements CardUseCaseInterface {
         const cards  = await this.cardRepository.findByUserId(userId);
 
         return cards;
+    }
+
+    async findByPluggyAccountId(pluggyAccountId: string): Promise<CardDto | undefined> {
+        return this.cardRepository.findByPluggyAccountId(pluggyAccountId);
     }
 
     async findById(id: string): Promise<any | Error> {

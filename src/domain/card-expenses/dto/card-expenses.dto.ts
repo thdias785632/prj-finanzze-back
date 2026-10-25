@@ -12,6 +12,7 @@ export interface CardExpensesDto {
     category: string;
     active: boolean;
     recurrent: boolean;
+    pluggyTransactionId?: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
