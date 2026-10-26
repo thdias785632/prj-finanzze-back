@@ -48,7 +48,7 @@ export const CATEGORY_MAP: Record<string, string> = {
 export function mapCategory(pluggyCategory?: string): string {
     if (!pluggyCategory) return Category.Outros;
 
-    const mapped = CATEGORY_MAP[pluggyCategory] || "Outros";
+    const mapped = CATEGORY_MAP[pluggyCategory];
 
     return (mapped || pluggyCategory).slice(0, 15);
 }
