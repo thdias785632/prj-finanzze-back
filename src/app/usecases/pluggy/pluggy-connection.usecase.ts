@@ -90,12 +90,15 @@ export class PluggyConnectionUseCase implements PluggyConnectionUseCaseInterface
         }
     }
 
-    // Chamado pelo webhook `item/updated` - atualiza status e, se o Item passou a ficar
-    // OK depois de um erro (ex: MFA resolvido), garante que os dados mais recentes sejam puxados.
     async handleItemUpdated(itemId: string): Promise<void> {
+        console.log(`[pluggy-connection] Tratando atualização do item: ${itemId}`);
+
         const itemStatus = await this.pluggyClient.fetchItem(itemId);
         const connection = await this.pluggyConnectionRepository.findByItemId(itemId);
 
+        console.log(`[pluggy-connection] Item status:`, itemStatus);
+        console.log(`[pluggy-connection] Connection:`, connection);
+        
         if (!connection) return;
 
         await this.pluggyConnectionRepository.update({

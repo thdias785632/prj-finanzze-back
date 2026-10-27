@@ -6,9 +6,6 @@ export default class PluggyWebhookController {
         private connectionUseCase: PluggyConnectionUseCaseInterface
     ) {}
 
-    // POST /api/pluggy/webhook
-    // A Pluggy exige resposta 2XX em até 5s, senão considera falha e reenvia até 3x.
-    // Por isso: respondemos 200 IMEDIATAMENTE e só depois processamos o evento.
     async receive(req: any, res: any): Promise<any> {
         const payload = req.body || {};
 

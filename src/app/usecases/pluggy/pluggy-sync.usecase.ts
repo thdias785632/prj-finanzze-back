@@ -97,11 +97,17 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
     async syncFromCreatedLink(link: string): Promise<void> {
         const transactions = await this.pluggyClient.fetchTransactionsFromLink(link);
 
+        console.log(`[pluggy-sync] Sincronizando ${transactions.length} transações do link:`, transactions);
+
         await this.upsertTransactionsGroupedByAccount(transactions);
     }
 
     async syncByTransactionIds(transactionIds: string[]): Promise<void> {
+        console.log(`[pluggy-sync] Sincronizando transações por IDs:`, transactionIds);
+
         const transactions = await this.pluggyClient.fetchTransactionsByIds(transactionIds);
+
+        console.log(`[pluggy-sync] Sincronizando ${transactions.length} transações:`, transactions);
 
         await this.upsertTransactionsGroupedByAccount(transactions);
     }
