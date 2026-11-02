@@ -17,24 +17,27 @@ export default class PluggyWebhookController {
     };
 
     private async process(payload: any): Promise<void> {
-        console.log(`[pluggy-webhook] Evento recebido: ${payload?.event}`, payload);
-        
+        console.log(`[pluggy-webhook] Evento recebido: ${payload?.event}`, JSON.stringify(payload));
+
         switch (payload.event) {
             case 'transactions/created':
                 await this.syncUseCase.syncFromCreatedLink(payload.createdTransactionsLink);
                 break;
 
             case 'transactions/updated':
-                await this.syncUseCase.syncByTransactionIds(payload.transactionIds || []);
+                await this.syncUseCase.syncByTransactionIds(payload.transactionIds || [], payload.accountId);
                 break;
 
             case 'transactions/deleted':
                 await this.syncUseCase.removeByTransactionIds(payload.transactionIds || []);
                 break;
 
-            case 'item/updated':
             case 'item/created':
+            case 'item/updated':
+                // A Pluggy nem sempre envia `transactions/created`. Por isso, sempre que um Item termina
+                // de atualizar, sincronizamos os últimos dias dos cartões dele (idempotente).
                 await this.connectionUseCase.handleItemUpdated(payload.itemId);
+                await this.syncUseCase.syncItem(payload.itemId);
                 break;
 
             default:
