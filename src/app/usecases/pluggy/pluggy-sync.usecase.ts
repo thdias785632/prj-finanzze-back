@@ -5,7 +5,7 @@ import { PluggyConnectionRepositoryInterface } from "../../@shared/pluggy/reposi
 import { CardRepositoryInterface } from "../../@shared/card/repository/card-repository.interface";
 import { CardExpensesRepositoryInterface } from "../../@shared/card-expenses/repository/card-expenses-repository.interface";
 import CardExpensesUseCaseInterface from "../../@shared/card-expenses/usecase/card-expenses.usecase.interface";
-import { PluggyTransactionDto } from "../../../domain/pluggy/dto/pluggy.dto";
+import { PluggyTransactionDto, SyncSummaryDto } from "../../../domain/pluggy/dto/pluggy.dto";
 import { CardDto } from "../../../domain/card/dto/card.dto";
 
 export enum Category {
@@ -38,7 +38,7 @@ export const CATEGORY_MAP: Record<string, string> = {
     "Pharmacies": Category.Saúde,
     "Pharmacy": Category.Saúde,
     "Public transpor": Category.Transporte,
-    "Taxi and ride-h": Category.Transporte,
+    "Taxi and ride-hailing": Category.Transporte,
     "Tickets": Category.Lazer,
     "Vehicle mainten": Category.Carro,
     "Wellness and fi": Category.Saúde,
@@ -50,7 +50,7 @@ export function mapCategory(pluggyCategory?: string): string {
 
     const mapped = CATEGORY_MAP[pluggyCategory];
 
-    return (mapped || pluggyCategory).slice(0, 15);
+    return mapped || pluggyCategory;
 }
 
 @injectable()
@@ -68,85 +68,205 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         private cardExpensesUseCase: CardExpensesUseCaseInterface
     ) {}
 
-    async syncAccountRetroactive(cardId: string): Promise<void> {
-        await this.syncAccount(cardId, {});
+    private emptySummary(): SyncSummaryDto {
+        return { fetched: 0, created: 0, updated: 0, failed: 0 };
     }
 
-    async syncAccountIncremental(cardId: string, sinceISO?: string): Promise<void> {
-        await this.syncAccount(cardId, { dateFrom: sinceISO });
-    }
-
-    private async syncAccount(cardId: string, options: { dateFrom?: string }): Promise<void> {
-        const card = await this.cardRepository.findById(cardId);
-
-        if (!card || !card.pluggyAccountId) return;
-
-        let cursor: string | undefined = undefined;
-
-        const pageData = await this.pluggyClient.fetchTransactionsPage(card.pluggyAccountId, {
-            cursor,
-            dateFrom: options.dateFrom,
-            pageSize: 500
-        });
-
-        for (const transaction of pageData.results) {
-            await this.upsertTransaction(card, transaction);
+    private merge(a: SyncSummaryDto, b: SyncSummaryDto): SyncSummaryDto {
+        return {
+            fetched: a.fetched + b.fetched,
+            created: a.created + b.created,
+            updated: a.updated + b.updated,
+            failed: a.failed + b.failed
         };
     }
 
-    async syncFromCreatedLink(link: string): Promise<void> {
-        const transactions = await this.pluggyClient.fetchTransactionsFromLink(link);
-
-        console.log(`[pluggy-sync] Sincronizando ${transactions.length} transações do link:`, transactions);
-
-        await this.upsertTransactionsGroupedByAccount(transactions);
+    private toDate(date: Date): string {
+        return date.toISOString().slice(0, 10);
     }
 
-    async syncByTransactionIds(transactionIds: string[]): Promise<void> {
-        console.log(`[pluggy-sync] Sincronizando transações por IDs:`, transactionIds);
+    async syncAccountRetroactive(cardId: string): Promise<SyncSummaryDto> {
+        const card = await this.cardRepository.findById(cardId);
 
-        const transactions = await this.pluggyClient.fetchTransactionsByIds(transactionIds);
+        if (!card || !card.pluggyAccountId) return this.emptySummary();
 
-        console.log(`[pluggy-sync] Sincronizando ${transactions.length} transações:`, transactions);
+        const transactions = await this.pluggyClient.fetchAllTransactions(card.pluggyAccountId);
 
-        await this.upsertTransactionsGroupedByAccount(transactions);
+        return this.upsertMany(card, transactions);
+    }
+
+    async syncAccountIncremental(cardId: string, sinceISO?: string): Promise<SyncSummaryDto> {
+        const card = await this.cardRepository.findById(cardId);
+
+        if (!card || !card.pluggyAccountId) return this.emptySummary();
+
+        const transactions = await this.pluggyClient.fetchAllTransactions(card.pluggyAccountId, {
+            dateFrom: sinceISO ? sinceISO.slice(0, 10) : undefined
+        });
+
+        return this.upsertMany(card, transactions);
+    }
+
+    async syncFromCreatedLink(link: string): Promise<SyncSummaryDto> {
+        const transactions = await this.pluggyClient.fetchTransactionsFromLink(link);
+
+        console.log(`[pluggy-sync] transactions/created: ${transactions.length} transação(ões) no link`);
+
+        return this.upsertGroupedByAccount(transactions);
+    }
+
+    async syncByTransactionIds(transactionIds: string[], accountId?: string): Promise<SyncSummaryDto> {
+        const transactions = await this.pluggyClient.fetchTransactionsByIds(transactionIds, accountId);
+
+        console.log(`[pluggy-sync] transactions/updated: ${transactions.length}/${transactionIds.length} transação(ões) encontradas`);
+
+        return this.upsertGroupedByAccount(transactions);
     }
 
     async removeByTransactionIds(transactionIds: string[]): Promise<void> {
         await this.cardExpensesRepository.deleteByPluggyTransactionIds(transactionIds);
     }
 
-    private async upsertTransactionsGroupedByAccount(transactions: PluggyTransactionDto[]): Promise<void> {
-        const accountIds = [...new Set(transactions.map((t) => t.accountId))];
+    async syncItem(itemId: string, lookbackDays?: number): Promise<SyncSummaryDto> {
+        const connection = await this.pluggyConnectionRepository.findByItemId(itemId);
 
-        const cardsByAccountId = new Map<string, CardDto>();
+        if (!connection) {
+            console.warn(`[pluggy-sync] Item ${itemId} não está vinculado a nenhum usuário`);
+
+            return this.emptySummary();
+        }
+
+        const days = lookbackDays ?? Number(process.env.PLUGGY_RECONCILE_LOOKBACK_DAYS || 7);
+        const since = new Date();
+
+        since.setDate(since.getDate() - days);
+
+        const cards = (await this.cardRepository.findByUserId(connection.userId))
+            .filter((card) => card.pluggyItemId === connection.id && card.pluggyAccountId);
+
+        let summary = this.emptySummary();
+
+        for (const card of cards) {
+            const transactions = await this.pluggyClient.fetchAllTransactions(card.pluggyAccountId as string, {
+                dateFrom: this.toDate(since)
+            });
+
+            summary = this.merge(summary, await this.upsertMany(card, transactions));
+        }
+
+        await this.pluggyConnectionRepository.update({ ...connection, lastSyncedAt: new Date() });
+
+        console.log(`[pluggy-sync] Item ${itemId}: ${cards.length} cartão(ões), últimos ${days} dias ->`, summary);
+
+        return summary;
+    }
+
+    async syncUser(userId: string, lookbackDays?: number): Promise<SyncSummaryDto> {
+        const connections = await this.pluggyConnectionRepository.findByUserId(userId);
+
+        let summary = this.emptySummary();
+
+        for (const connection of connections) {
+            summary = this.merge(summary, await this.syncItem(connection.itemId, lookbackDays));
+        }
+
+        return summary;
+    }
+
+    async syncAllActiveConnections(): Promise<void> {
+        const connections = await this.pluggyConnectionRepository.findAllActive();
+
+        for (const connection of connections) {
+            try {
+                const itemStatus = await this.pluggyClient.fetchItem(connection.itemId);
+
+                await this.pluggyConnectionRepository.update({
+                    ...connection,
+                    status: itemStatus.status,
+                    executionStatus: itemStatus.executionStatus
+                });
+
+                await this.syncItem(connection.itemId);
+            } catch (error) {
+                // Não deixa uma conexão com erro travar as demais.
+                console.error(`[pluggy] Falha ao reconciliar item ${connection.itemId}:`, error);
+            }
+        }
+    }
+
+    async refreshAllItems(userId?: string): Promise<{ requested: number; failed: number }> {
+        const connections = userId
+            ? await this.pluggyConnectionRepository.findByUserId(userId)
+            : await this.pluggyConnectionRepository.findAllActive();
+
+        let requested = 0;
+        let failed = 0;
+
+        for (const connection of connections) {
+            try {
+                await this.pluggyClient.refreshItem(connection.itemId);
+                requested++;
+            } catch (error) {
+                failed++;
+                console.error(`[pluggy] Falha ao solicitar atualização do item ${connection.itemId}:`, error);
+            }
+        }
+
+        console.log(`[pluggy] Atualização solicitada para ${requested} item(ns); falhas: ${failed}`);
+
+        return { requested, failed };
+    }
+
+    private async upsertGroupedByAccount(transactions: PluggyTransactionDto[]): Promise<SyncSummaryDto> {
+        let summary = this.emptySummary();
+
+        const accountIds = [...new Set(transactions.map((t) => t.accountId))];
 
         for (const accountId of accountIds) {
             const card = await this.cardRepository.findByPluggyAccountId(accountId);
 
-            if (card) cardsByAccountId.set(accountId, card);
+            if (!card) {
+                console.log(`[pluggy-sync] Conta ${accountId} sem cartão vinculado; ignorando`);
+                continue;
+            }
+
+            summary = this.merge(summary, await this.upsertMany(card, transactions.filter((t) => t.accountId === accountId)));
         }
 
-        for (const transaction of transactions) {
-            const card = cardsByAccountId.get(transaction.accountId);
-
-            if (!card) continue; // conta não vinculada a nenhum card nosso (ex: não é cartão de crédito)
-
-            await this.upsertTransaction(card, transaction);
-        }
+        return summary;
     }
 
-    private async upsertTransaction(card: CardDto, transaction: PluggyTransactionDto): Promise<void> {
+    private async upsertMany(card: CardDto, transactions: PluggyTransactionDto[]): Promise<SyncSummaryDto> {
+        const summary = this.emptySummary();
+
+        summary.fetched = transactions.length;
+
+        for (const transaction of transactions) {
+            try {
+                const result = await this.upsertTransaction(card, transaction);
+
+                summary[result]++;
+            } catch (error) {
+                summary.failed++;
+                console.error(`[pluggy-sync] Falha ao gravar transação ${transaction.id} (${transaction.description}):`, error);
+            }
+        }
+
+        return summary;
+    }
+
+    private async upsertTransaction(card: CardDto, transaction: PluggyTransactionDto): Promise<'created' | 'updated'> {
         const existing = await this.cardExpensesRepository.findByPluggyTransactionId(transaction.id);
 
         const value = Math.abs(transaction.amount);
+        const name = (transaction.description || transaction.descriptionRaw || "Despesa").slice(0, 255);
 
         if (existing) {
             await this.cardExpensesUseCase.update({
                 id: existing.id,
                 cardId: card.id,
                 userId: card.userId,
-                name: transaction.description || transaction.descriptionRaw || "Despesa",
+                name,
                 value,
                 installments: transaction.creditCardMetadata?.totalInstallments || 1,
                 referenceDate: new Date(transaction.date),
@@ -155,13 +275,13 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
                 recurrent: false
             });
 
-            return;
+            return 'updated';
         }
 
         await this.cardExpensesUseCase.create({
             cardId: card.id,
             userId: card.userId,
-            name: transaction.description || transaction.descriptionRaw || "Despesa",
+            name,
             value,
             installments: transaction.creditCardMetadata?.totalInstallments,
             referenceDate: new Date(transaction.date),
@@ -170,36 +290,7 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
             recurrent: false,
             pluggyTransactionId: transaction.id
         });
-    }
 
-    async syncAllActiveConnections(): Promise<void> {
-        const connections = await this.pluggyConnectionRepository.findAllActive();
-        const RECONCILE_LOOKBACK_DAYS = Number(process.env.PLUGGY_RECONCILE_LOOKBACK_DAYS || 3);
-
-        for (const connection of connections) {
-            try {
-                const itemStatus = await this.pluggyClient.fetchItem(connection.itemId);
-
-                const cards = await this.cardRepository.findByUserId(connection.userId);
-                const linkedCards = cards.filter((c) => c.pluggyItemId === connection.id);
-
-                const since = new Date();
-                since.setDate(since.getDate() - RECONCILE_LOOKBACK_DAYS);
-
-                for (const card of linkedCards) {
-                    await this.syncAccountIncremental(card.id, since.toISOString());
-                }
-
-                await this.pluggyConnectionRepository.update({
-                    ...connection,
-                    status: itemStatus.status,
-                    executionStatus: itemStatus.executionStatus,
-                    lastSyncedAt: new Date()
-                });
-            } catch (error) {
-                // Não deixa uma conexão com erro travar a reconciliação das demais.
-                console.error(`[pluggy] Falha ao reconciliar item ${connection.itemId}:`, error);
-            }
-        }
+        return 'created';
     }
 }

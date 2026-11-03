@@ -9,6 +9,7 @@ import swaggerFile from "./infra/http/swagger/swagger-output.json";
 import cron from 'node-cron';
 import { DailyReportService } from './app/services/daily-report/daily-report';
 import { container } from './app/database-injection/injection';
+import { IndiceUseCaseInterface } from './app/@shared/indice/usecases/indice.usecase.interface';
 import { PluggySyncUseCaseInterface } from './app/@shared/pluggy/usecase/pluggy.usecase.interface';
 
 dotenv.config();
@@ -71,6 +72,23 @@ cron.schedule('0 0 8 * * *', async() => {
 // bateria na API da Pluggy sem necessidade e sem trazer dado nenhum mais rápido.
 const PLUGGY_SYNC_CRON = process.env.PLUGGY_SYNC_CRON || '*/30 * * * *';
 
+// Sync diário: a Pluggy só coleta dados novos do banco no auto-sync do plano (8/12/24h) ou quando
+// pedimos (PATCH /items/{id}). Esse job pede a atualização todo dia; quando ela termina a Pluggy envia
+// `item/updated` e o webhook sincroniza as despesas novas (não depende de `transactions/created`).
+const PLUGGY_DAILY_REFRESH_CRON = process.env.PLUGGY_DAILY_REFRESH_CRON || '0 0 6 * * *';
+
+cron.schedule(PLUGGY_DAILY_REFRESH_CRON, async () => {
+  console.log('Running pluggy daily refresh job at', new Date().toISOString());
+
+  try {
+    const pluggySyncUseCase = container.get('PluggySyncUseCase') as PluggySyncUseCaseInterface;
+
+    await pluggySyncUseCase.refreshAllItems();
+  } catch (error) {
+    console.error('Error executing pluggy daily refresh job:', error);
+  }
+});
+
 cron.schedule(PLUGGY_SYNC_CRON, async () => {
   console.log('Running pluggy reconciliation job at', new Date().toISOString());
 
@@ -84,3 +102,19 @@ cron.schedule(PLUGGY_SYNC_CRON, async () => {
     console.error('Error executing pluggy reconciliation job:', error);
   }
 });
+// INCC: busca a variação mensal no Banco Central (SGS 192) todo dia às 07:00 (o índice sai perto do fim
+// de cada mês) e uma vez na subida do servidor, para a tabela nunca ficar vazia.
+const INDICES_SYNC_CRON = process.env.INDICES_SYNC_CRON || '0 0 7 * * *';
+
+const syncInccJob = async () => {
+  try {
+    const indiceUseCase = container.get('IndiceUseCase') as IndiceUseCaseInterface;
+
+    await indiceUseCase.syncIncc();
+  } catch (error) {
+    console.error('Error executing INCC sync job:', error);
+  }
+};
+
+cron.schedule(INDICES_SYNC_CRON, syncInccJob);
+syncInccJob();

@@ -214,3 +214,37 @@ Ferramentas: inspector do ngrok (`http://127.0.0.1:4040`) para ver/reenviar webh
 - **Sem cartão com `pluggy_account_id` duplicado entre usuários**: a coluna é UNIQUE.
 - **Item/updated** só atualiza status; não dispara sync por si só.
 - Cada query abre/fecha uma conexão `pg` (padrão do projeto); em sincronizações grandes isso é lento. Considerar pool.
+
+---
+
+## 8. Sync diário e diagnóstico (atualização)
+
+**Por que só chegava `transactions/updated`:** a Pluggy só envia `transactions/created` quando um *update* do Item encontra transações novas. Para não depender disso, o fluxo agora é:
+
+| Mecanismo | O que faz |
+|---|---|
+| Job diário (`PLUGGY_DAILY_REFRESH_CRON`, padrão 06:00) | `PATCH /items/{id}` em todos os Items ativos: pede à Pluggy que colete dados novos no banco |
+| Webhook `item/updated` | quando a coleta termina, sincroniza os últimos `PLUGGY_RECONCILE_LOOKBACK_DAYS` (7) dias de todos os cartões do Item |
+| Cron de reconciliação (`PLUGGY_SYNC_CRON`, 30 min) | re-sincroniza o que a Pluggy já coletou (rede de segurança) |
+| `transactions/created` / `updated` / `deleted` | continuam tratados quando chegam |
+
+**O que foi corrigido na integração (conferido na documentação da API v2):**
+- `GET /v2/transactions` usa `dateFrom` / `createdAtFrom` (não `from`) e pagina por `next` (não por `cursor`); `dateFrom` e `createdAtFrom` não podem ser usados juntos.
+- Busca por `ids` exige `accountId` (vem no payload de `transactions/updated`).
+- O `createdTransactionsLink` aponta para o endpoint antigo (`/transactions`, removido em 2026-12-31); agora só extraímos `accountId` e `createdAtFrom` dele e buscamos pelo `/v2`.
+- Um erro ao gravar uma transação não aborta mais as demais, e o erro aparece no log (`[pluggy-sync] Falha ao gravar transação ...`).
+
+**Endpoints de operação**
+```bash
+# sincroniza agora os últimos 7 dias dos cartões do usuário e mostra o resumo {fetched, created, updated, failed}
+curl -X POST $API/api/pluggy/sync -H "Content-Type: application/json" -d '{"userId":"...", "days": 30}'
+
+# pede à Pluggy para coletar dados novos (o resultado chega depois via webhook item/updated)
+curl -X POST $API/api/pluggy/refresh -H "Content-Type: application/json" -d '{"userId":"..."}'
+
+# o que está registrado na Pluggy / (re)registrar os eventos para PLUGGY_WEBHOOK_URL
+curl $API/api/pluggy/webhooks
+curl -X POST $API/api/pluggy/webhooks/register
+```
+
+**Atenção:** a Pluggy responde em até 10 s e reenvia (3 tentativas) em caso de falha; respostas `400/401/403/404/405` nunca são reenviadas. Conectores de Open Finance podem limitar quantas atualizações manuais por dia são aceitas; se o `refresh` falhar, o log mostra o motivo.

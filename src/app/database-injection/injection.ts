@@ -25,14 +25,14 @@ import CategoriesUseCaseInterface from '../@shared/categories/usecases/categorie
 import { CategoriesUseCase } from '../usecases/categories/categories.usecase';
 import { CategoriesRepository } from '../../infra/api/repositories/categories/categories-repository';
 import { DailyReportService } from '../services/daily-report/daily-report';
-import { CategoriaInvestimentoRepositoryInterface } from '../@shared/categoria-investimento/repository/categoria-investimento.repository.interface';
-import CategoriaInvestimentoUseCaseInterface from '../@shared/categoria-investimento/usecases/categoria-investimento.usecase.interface';
-import { CategoriaInvestimentoUseCase } from '../usecases/categoria-investimento/categoria-investimento.usecase';
-import { CategoriaInvestimentoRepository } from '../../infra/api/repositories/categoria-investimento/categoria-investimento.repository';
-import { InvestimentoRepositoryInterface } from '../@shared/investimento/repository/investimento.repository.interface';
-import InvestimentoUseCaseInterface from '../@shared/investimento/usecases/investimento.usecase.interface';
-import { InvestimentoUseCase } from '../usecases/investimento/investimento.usecase';
-import { InvestimentoRepository } from '../../infra/api/repositories/investimento/investimento.repository';
+import { ImovelRepositoryInterface } from '../@shared/imovel/repository/imovel.repository.interface';
+import ImovelUseCaseInterface from '../@shared/imovel/usecases/imovel.usecase.interface';
+import { ImovelRepository } from '../../infra/api/repositories/imovel/imovel.repository';
+import { ImovelUseCase } from '../usecases/imovel/imovel.usecase';
+import { IndiceRepositoryInterface } from '../@shared/indice/repository/indice.repository.interface';
+import { IndiceUseCaseInterface } from '../@shared/indice/usecases/indice.usecase.interface';
+import { IndiceRepository } from '../../infra/api/repositories/indice/indice.repository';
+import { IndiceUseCase } from '../usecases/indice/indice.usecase';
 import { PluggyClientInterface } from '../@shared/pluggy/client/pluggy-client.interface';
 import { PluggyClient } from '../../infra/api/pluggy/pluggy-client';
 import { PluggyConnectionRepositoryInterface } from '../@shared/pluggy/repository/pluggy-connection-repository.interface';
@@ -65,11 +65,12 @@ container.bind<CategoriesUseCaseInterface>('CategoriesUseCase').to(CategoriesUse
 
 container.bind('DailyReportService').to(DailyReportService).inSingletonScope();
 
-container.bind<CategoriaInvestimentoRepositoryInterface>('CategoriaInvestimentoRepository').to(CategoriaInvestimentoRepository).inSingletonScope();
-container.bind<CategoriaInvestimentoUseCaseInterface>('CategoriaInvestimentoUseCase').to(CategoriaInvestimentoUseCase).inSingletonScope();
 
-container.bind<InvestimentoRepositoryInterface>('InvestimentoRepository').to(InvestimentoRepository).inSingletonScope();
-container.bind<InvestimentoUseCaseInterface>('InvestimentoUseCase').to(InvestimentoUseCase).inSingletonScope();
+
+container.bind<IndiceRepositoryInterface>('IndiceRepository').to(IndiceRepository).inSingletonScope();
+container.bind<IndiceUseCaseInterface>('IndiceUseCase').to(IndiceUseCase).inSingletonScope();
+container.bind<ImovelRepositoryInterface>('ImovelRepository').to(ImovelRepository).inSingletonScope();
+container.bind<ImovelUseCaseInterface>('ImovelUseCase').to(ImovelUseCase).inSingletonScope();
 
 container.bind<PluggyClientInterface>('PluggyClient').to(PluggyClient).inSingletonScope();
 container.bind<PluggyConnectionRepositoryInterface>('PluggyConnectionRepository').to(PluggyConnectionRepository).inSingletonScope();

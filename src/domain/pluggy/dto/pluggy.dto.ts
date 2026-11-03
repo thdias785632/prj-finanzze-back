@@ -49,8 +49,22 @@ export interface PluggyTransactionDto {
     };
 }
 
+// GET /v2/transactions: paginação por cursor. `next` já vem pronto ("?accountId=...&after=...")
+// para ser anexado ao path (GET /v2/transactions{next}); é null na última página.
 export interface PluggyTransactionsPageDto {
     results: PluggyTransactionDto[];
-    nextCursor?: string | null;
-    total?: number;
+    next: string | null;
+}
+
+export interface PluggyWebhookDto {
+    id: string;
+    url: string;
+    event: string;
+}
+
+export interface SyncSummaryDto {
+    fetched: number;
+    created: number;
+    updated: number;
+    failed: number;
 }
