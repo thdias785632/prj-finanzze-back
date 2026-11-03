@@ -811,207 +811,6 @@
         }
       }
     },
-    "/api/categoria-investimento/": {
-      "post": {
-        "tags": [
-          "CategoriaInvestimento"
-        ],
-        "summary": "Criar categoria de investimento",
-        "description": "",
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "CategoriaInvestimento"
-        ],
-        "summary": "Deletar categoria de investimento",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/categoria-investimento/get-by-user": {
-      "get": {
-        "tags": [
-          "CategoriaInvestimento"
-        ],
-        "summary": "Listar categorias por usuário",
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/categoria-investimento/get-by-id": {
-      "get": {
-        "tags": [
-          "CategoriaInvestimento"
-        ],
-        "summary": "Buscar categoria por id",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/investimento/": {
-      "post": {
-        "tags": [
-          "Investimento"
-        ],
-        "summary": "Criar ativo de investimento",
-        "description": "",
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Investimento"
-        ],
-        "summary": "Atualizar ativo de investimento",
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Investimento"
-        ],
-        "summary": "Deletar ativo de investimento",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/investimento/get-by-user": {
-      "get": {
-        "tags": [
-          "Investimento"
-        ],
-        "summary": "Listar ativos por usuário",
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/investimento/get-by-id": {
-      "get": {
-        "tags": [
-          "Investimento"
-        ],
-        "summary": "Buscar ativo por id",
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
     "/api/pluggy/connections": {
       "post": {
         "tags": [
@@ -1020,14 +819,8 @@
         "summary": "Conecta um Item da Pluggy a um usuário",
         "description": "Vincula um Item (conexão bancária) já existente na Pluggy ao usuário, cria os cards de crédito correspondentes e dispara a busca retroativa de despesas.",
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         },
         "requestBody": {
@@ -1060,6 +853,361 @@
         "responses": {
           "default": {
             "description": ""
+          }
+        }
+      }
+    },
+    "/api/pluggy/sync": {
+      "post": {
+        "tags": [
+          "Pluggy"
+        ],
+        "summary": "Sincroniza agora as despesas dos cartões do usuário (últimos dias)",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "example": "any"
+                  },
+                  "days": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pluggy/refresh": {
+      "post": {
+        "tags": [
+          "Pluggy"
+        ],
+        "summary": "Pede à Pluggy para coletar dados novos no banco (PATCH /items)",
+        "description": "",
+        "responses": {
+          "202": {
+            "description": "Accepted"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/pluggy/webhooks": {
+      "get": {
+        "tags": [
+          "Pluggy"
+        ],
+        "summary": "Lista os webhooks registrados na Pluggy",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/pluggy/webhooks/register": {
+      "post": {
+        "tags": [
+          "Pluggy"
+        ],
+        "summary": "(Re)registra os eventos do webhook na Pluggy",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/imoveis/": {
+      "post": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Cadastrar imóvel com seus fluxos de pagamento",
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Atualizar imóvel (inclui defasagem e mês-base do INCC)",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Remover imóvel",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/imoveis/get-by-user": {
+      "get": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Listar imóveis do usuário (resumo com valores corrigidos pelo INCC)",
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/imoveis/get-by-id": {
+      "get": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Detalhe do imóvel: fluxos e parcelas com valor corrigido",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/imoveis/fluxos": {
+      "post": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Adicionar fluxo de pagamento ao imóvel",
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Remover fluxo de pagamento",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/imoveis/parcelas/pay": {
+      "patch": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Marcar parcela como paga",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/imoveis/parcelas/unpay": {
+      "patch": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Desfazer pagamento da parcela",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "example": "any"
+                  },
+                  "userId": {
+                    "example": "any"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/imoveis/parcelas": {
+      "put": {
+        "tags": [
+          "Imóveis"
+        ],
+        "summary": "Editar valor-base ou vencimento de uma parcela em aberto",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/indices/incc": {
+      "get": {
+        "tags": [
+          "Índices"
+        ],
+        "summary": "Variação mensal do INCC",
+        "description": "",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Índices"
+        ],
+        "summary": "Informar manualmente a variação do INCC de um mês",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/indices/incc/sync": {
+      "post": {
+        "tags": [
+          "Índices"
+        ],
+        "summary": "Sincronizar INCC com o Banco Central (SGS 192)",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }

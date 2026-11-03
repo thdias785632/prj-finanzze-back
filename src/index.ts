@@ -9,6 +9,7 @@ import swaggerFile from "./infra/http/swagger/swagger-output.json";
 import cron from 'node-cron';
 import { DailyReportService } from './app/services/daily-report/daily-report';
 import { container } from './app/database-injection/injection';
+import { IndiceUseCaseInterface } from './app/@shared/indice/usecases/indice.usecase.interface';
 import { PluggySyncUseCaseInterface } from './app/@shared/pluggy/usecase/pluggy.usecase.interface';
 
 dotenv.config();
@@ -101,3 +102,19 @@ cron.schedule(PLUGGY_SYNC_CRON, async () => {
     console.error('Error executing pluggy reconciliation job:', error);
   }
 });
+// INCC: busca a variação mensal no Banco Central (SGS 192) todo dia às 07:00 (o índice sai perto do fim
+// de cada mês) e uma vez na subida do servidor, para a tabela nunca ficar vazia.
+const INDICES_SYNC_CRON = process.env.INDICES_SYNC_CRON || '0 0 7 * * *';
+
+const syncInccJob = async () => {
+  try {
+    const indiceUseCase = container.get('IndiceUseCase') as IndiceUseCaseInterface;
+
+    await indiceUseCase.syncIncc();
+  } catch (error) {
+    console.error('Error executing INCC sync job:', error);
+  }
+};
+
+cron.schedule(INDICES_SYNC_CRON, syncInccJob);
+syncInccJob();
