@@ -1,7 +1,4 @@
-// Funções puras de data e correção por índice (testáveis sem banco).
-// Convenção: "ym" = 'YYYY-MM'; datas = 'YYYY-MM-DD'.
-
-export type VariationMap = Map<string, number>; // ym -> variação % do mês
+export type VariationMap = Map<string, number>;
 
 export function toYm(date: string): string {
     return date.slice(0, 7);
@@ -14,7 +11,6 @@ export function addMonthsYm(ym: string, months: number): string {
     return `${Math.floor(total / 12)}-${String((total % 12) + 1).padStart(2, '0')}`;
 }
 
-// Soma meses mantendo o dia (ajusta para o último dia do mês quando necessário: 31/01 + 1 = 28/02).
 export function addMonthsDate(date: string, months: number): string {
     const [year, month, day] = date.split('-').map(Number);
     const ym = addMonthsYm(`${year}-${String(month).padStart(2, '0')}`, months);
@@ -43,11 +39,6 @@ export interface IndexFactor {
     lastMonthApplied?: string;   // último mês efetivamente aplicado
 }
 
-/**
- * Fator acumulado do índice entre o mês-base (exclusive) e o mês de referência (inclusive).
- * Equivale a INDICE(ref) / INDICE(base). Ex.: base 2024-03, ref 2024-06 => (1+v04)(1+v05)(1+v06).
- * Se algum mês ainda não foi divulgado, acumula até o último disponível e marca `estimated`.
- */
 export function computeIndexFactor(baseYm: string, referenceYm: string, variations: VariationMap): IndexFactor {
     if (referenceYm <= baseYm) return { factor: 1, estimated: false };
 
@@ -68,7 +59,6 @@ export function computeIndexFactor(baseYm: string, referenceYm: string, variatio
     return { factor, estimated: false, lastMonthApplied: last };
 }
 
-/** Mês de referência do índice para uma parcela: mês do vencimento menos a defasagem escolhida. */
 export function referenceMonthFor(dueDate: string, lagMonths: number): string {
     return addMonthsYm(toYm(dueDate), -lagMonths);
 }

@@ -38,7 +38,7 @@ export const CATEGORY_MAP: Record<string, string> = {
     "Pharmacies": Category.Saúde,
     "Pharmacy": Category.Saúde,
     "Public transpor": Category.Transporte,
-    "Taxi and ride-h": Category.Transporte,
+    "Taxi and ride-hailing": Category.Transporte,
     "Tickets": Category.Lazer,
     "Vehicle mainten": Category.Carro,
     "Wellness and fi": Category.Saúde,
@@ -50,7 +50,7 @@ export function mapCategory(pluggyCategory?: string): string {
 
     const mapped = CATEGORY_MAP[pluggyCategory];
 
-    return (mapped || pluggyCategory).slice(0, 15);
+    return mapped || pluggyCategory;
 }
 
 @injectable()
@@ -85,7 +85,6 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         return date.toISOString().slice(0, 10);
     }
 
-    // Histórico completo do cartão (sem filtro de data) - usado ao conectar um Item pela 1ª vez.
     async syncAccountRetroactive(cardId: string): Promise<SyncSummaryDto> {
         const card = await this.cardRepository.findById(cardId);
 
@@ -108,7 +107,6 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         return this.upsertMany(card, transactions);
     }
 
-    // Evento `transactions/created`
     async syncFromCreatedLink(link: string): Promise<SyncSummaryDto> {
         const transactions = await this.pluggyClient.fetchTransactionsFromLink(link);
 
@@ -117,7 +115,6 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         return this.upsertGroupedByAccount(transactions);
     }
 
-    // Evento `transactions/updated`
     async syncByTransactionIds(transactionIds: string[], accountId?: string): Promise<SyncSummaryDto> {
         const transactions = await this.pluggyClient.fetchTransactionsByIds(transactionIds, accountId);
 
@@ -126,14 +123,10 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         return this.upsertGroupedByAccount(transactions);
     }
 
-    // Evento `transactions/deleted`
     async removeByTransactionIds(transactionIds: string[]): Promise<void> {
         await this.cardExpensesRepository.deleteByPluggyTransactionIds(transactionIds);
     }
 
-    // Sincroniza os últimos `lookbackDays` dias de TODOS os cartões vinculados a um Item.
-    // É o caminho que não depende do webhook `transactions/created`: ele roda no `item/updated`,
-    // no cron de reconciliação e no endpoint manual.
     async syncItem(itemId: string, lookbackDays?: number): Promise<SyncSummaryDto> {
         const connection = await this.pluggyConnectionRepository.findByItemId(itemId);
 
@@ -180,7 +173,6 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         return summary;
     }
 
-    // Rede de segurança (cron frequente): re-sincroniza o que a Pluggy JÁ coletou.
     async syncAllActiveConnections(): Promise<void> {
         const connections = await this.pluggyConnectionRepository.findAllActive();
 
@@ -202,8 +194,6 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         }
     }
 
-    // Job diário: pede à Pluggy para ir ao banco buscar dados novos. Quando ela terminar, envia o
-    // webhook `item/updated`, que dispara o `syncItem`. Não espera o término aqui.
     async refreshAllItems(userId?: string): Promise<{ requested: number; failed: number }> {
         const connections = userId
             ? await this.pluggyConnectionRepository.findByUserId(userId)
@@ -246,7 +236,6 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
         return summary;
     }
 
-    // Uma transação com erro não pode abortar as demais (antes o erro ficava escondido no webhook).
     private async upsertMany(card: CardDto, transactions: PluggyTransactionDto[]): Promise<SyncSummaryDto> {
         const summary = this.emptySummary();
 

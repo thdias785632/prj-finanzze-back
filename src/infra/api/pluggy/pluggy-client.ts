@@ -5,15 +5,6 @@ import { PluggyAccountDto, PluggyTransactionDto, PluggyTransactionsPageDto, Plug
 
 dotenv.config();
 
-/**
- * Cliente HTTP cru para a API da Pluggy (https://docs.pluggy.ai).
- * Usa o `fetch` global do Node 18+ (não precisa de axios/undici como dependência extra).
- *
- * IMPORTANTE: a Pluggy pode alterar o formato de resposta dos endpoints com o tempo.
- * Antes de ir pra produção, confira o formato mais atual em:
- * https://docs.pluggy.ai/reference (ou o OpenAPI spec em https://api.pluggy.ai/oas3.json)
- * principalmente do GET /v2/transactions (paginação por cursor).
- */
 @injectable()
 export class PluggyClient implements PluggyClientInterface {
     private baseUrl = process.env.PLUGGY_BASE_URL || "https://api.pluggy.ai";
@@ -96,8 +87,6 @@ export class PluggyClient implements PluggyClientInterface {
         await this.request(`/items/${itemId}`, { method: "PATCH", body: JSON.stringify({}) });
     }
 
-    // GET /v2/transactions - parâmetros aceitos: accountId, ids, dateFrom, dateTo, createdAtFrom, after.
-    // (não existe pageSize/from/cursor no v2; a resposta traz `next` pronto para anexar ao path)
     async fetchTransactionsPage(accountId: string, options: FetchTransactionsOptions = {}): Promise<PluggyTransactionsPageDto> {
         let path: string;
 
@@ -124,7 +113,7 @@ export class PluggyClient implements PluggyClientInterface {
 
     async fetchAllTransactions(accountId: string, options: FetchTransactionsOptions = {}): Promise<PluggyTransactionDto[]> {
         const all: PluggyTransactionDto[] = [];
-        const MAX_PAGES = 200; // trava contra loop infinito de cursor
+        const MAX_PAGES = 200;
         let next: string | undefined = options.next;
 
         for (let page = 0; page < MAX_PAGES; page++) {

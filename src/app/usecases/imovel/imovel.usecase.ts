@@ -31,11 +31,8 @@ export class ImovelUseCase implements ImovelUseCaseInterface {
     ) {}
 
     private today(): string {
-        // data de hoje no fuso de Brasília
         return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
     }
-
-    // ---------- validação / montagem ----------
 
     private normalizeBaseMonth(value: string | undefined, fallbackDate: string): string {
         const raw = value || fallbackDate;
@@ -111,8 +108,6 @@ export class ImovelUseCase implements ImovelUseCaseInterface {
         return imovel;
     }
 
-    // ---------- cálculo ----------
-
     private calculateParcelas(
         imovel: ImovelDTO, fluxos: ImovelFluxoDTO[], parcelas: ImovelParcelaDTO[], variations: VariationMap
     ): ImovelParcelaCalculadaDTO[] {
@@ -176,8 +171,6 @@ export class ImovelUseCase implements ImovelUseCaseInterface {
             lastIndexMonth: months[months.length - 1]
         };
     }
-
-    // ---------- casos de uso ----------
 
     async create(input: inputCreateImovel): Promise<{ id: string }> {
         if (!input.userId) throw new HttpError(400, 'userId é obrigatório');

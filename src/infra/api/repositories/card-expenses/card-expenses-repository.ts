@@ -40,7 +40,6 @@ export class CardExpensesRepository implements CardExpensesRepositoryInterface {
                 $11,
                 $12
             )
-            ON CONFLICT (pluggy_transaction_id) DO NOTHING
             `, [
                 cardExpense.id, 
                 cardExpense.cardId, 
