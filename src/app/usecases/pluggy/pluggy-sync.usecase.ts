@@ -136,7 +136,7 @@ export class PluggySyncUseCase implements PluggySyncUseCaseInterface {
             return this.emptySummary();
         }
 
-        const days = lookbackDays ?? Number(process.env.PLUGGY_RECONCILE_LOOKBACK_DAYS || 7);
+        const days = lookbackDays ?? Number(process.env.PLUGGY_RECONCILE_LOOKBACK_DAYS || 1);
         const since = new Date();
 
         since.setDate(since.getDate() - days);
