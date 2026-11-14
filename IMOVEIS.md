@@ -12,10 +12,19 @@ Para cada parcela com índice `INCC`:
 
 ```
 mês de referência = mês do vencimento − defasagem          (ex.: vence 10/set, defasagem 2 → INCC de julho)
-fator             = Π (1 + variação_m/100)  para m = mês-base+1 … mês de referência
+fator             = Π (1 + variação_m/100)  para m = mês-base … mês de referência   (mês-base INCLUÍDO)
 valor corrigido   = valor-base × fator
 ```
-Isso equivale a `INCC(referência) / INCC(base)`. Se o mês de referência for igual ou anterior ao mês-base, não há correção. Se algum mês ainda não foi divulgado, o fator usa até o último mês disponível e a parcela vem com `estimated: true`.
+Se o mês de referência for anterior ao mês-base, não há correção (fator 1).
+
+### Valor estimado (INCC ainda não divulgado)
+Quando algum mês entre o mês-base e o mês de referência ainda não foi divulgado, ele é **projetado com a média do INCC do ano**: média aritmética das variações mensais de janeiro até o último mês divulgado, do ano desse último mês.
+
+- Ex.: INCC divulgado até set/2026 → os meses out/2026, nov/2026, dez/2026, jan/2027... usam a média de jan–set/2026 (enquanto não houver dado de 2027, a média de 2026 continua sendo usada).
+- Se houver um "buraco" no meio da série, o mês faltante usa a média do ano até o último mês divulgado antes dele.
+- Sem nenhum mês divulgado antes (sem base para estimar), a correção acumula só até onde há dado.
+- A parcela vem marcada com `estimated: true` e os campos `projectedMonths` (quantos meses foram projetados), `projectedVariation` (média mensal %, usada) e `projectedYear` (ano da média). À medida que o INCC real é divulgado, o valor se ajusta sozinho e a parcela deixa de ser estimada.
+- Parcelas pagas e fluxos sem índice (`NONE`) nunca são estimados. Com defasagem de 2 meses, o valor só é 100% real quando faltam 2 meses para o vencimento.
 
 - A **defasagem** (`inccLagMonths`, 0 a 12, padrão 2) e o **mês-base** (`inccBaseMonth`) são editáveis por imóvel (`PUT /api/imoveis`); como o valor é calculado na leitura, nada precisa ser recriado.
 - Ao **marcar como paga**, o valor corrigido daquele momento é congelado em `paid_amount` (ou o usuário informa o valor realmente pago).

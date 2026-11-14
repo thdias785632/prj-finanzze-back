@@ -48,7 +48,7 @@ export class IndiceUseCase implements IndiceUseCaseInterface {
             const rows = await this.indiceRepository.findRange(INCC);
             const earliest = rows[0]?.refMonth;
 
-            if (!earliest || earliest > addMonthsYm(baseYm, 1)) {
+            if (!earliest || earliest > baseYm) {
                 await this.syncIncc(baseYm);
             }
         } catch (error) {

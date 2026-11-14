@@ -60,7 +60,10 @@ export interface ImovelParcelaCalculadaDTO extends ImovelParcelaDTO {
     referenceMonth?: string;      // mês do INCC usado (YYYY-MM): vencimento - defasagem
     correctionFactor: number;     // fator acumulado desde o mês-base
     correctedAmount: number;      // base * fator
-    estimated: boolean;           // true = ainda faltam meses de INCC publicados (valor parcial)
+    estimated: boolean;           // true = há meses de INCC ainda não divulgados: valor projetado pela média do ano
+    projectedMonths: number;      // quantos meses do período foram projetados
+    projectedVariation?: number;  // média mensal (%) do INCC usada na projeção
+    projectedYear?: number;       // ano cuja média foi usada
     currentAmount: number;        // pago -> valor pago; em aberto -> valor corrigido
     overdue: boolean;
 }

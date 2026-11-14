@@ -9,7 +9,7 @@ import {
     FLUXO_TIPOS, FluxoTipo, ImovelDTO, ImovelDetalheDTO, ImovelFluxoDTO, ImovelFluxoDetalheDTO,
     ImovelParcelaCalculadaDTO, ImovelParcelaDTO, ImovelResumoDTO, INDEX_TYPES, IndexType
 } from "../../../domain/imovel/dto/imovel.dto";
-import { addMonthsDate, computeIndexFactor, isValidDate, referenceMonthFor, round2, toYm, VariationMap } from "./incc-calculator";
+import { addMonthsDate, buildProjector, computeIndexFactor, isValidDate, referenceMonthFor, round2, toYm, VariationMap } from "./incc-calculator";
 import { HttpError } from "../indice/indice.usecase";
 
 const FLUXO_LABEL: Record<FluxoTipo, string> = {
@@ -114,20 +114,27 @@ export class ImovelUseCase implements ImovelUseCaseInterface {
         const fluxoById = new Map(fluxos.map((f) => [f.id, f]));
         const today = this.today();
         const baseYm = toYm(imovel.inccBaseMonth);
+        const project = buildProjector(variations);
 
         return parcelas.map((parcela) => {
             const fluxo = fluxoById.get(parcela.fluxoId) as ImovelFluxoDTO;
             let factor = 1;
             let estimated = false;
+            let projectedMonths = 0;
+            let projectedVariation: number | undefined;
+            let projectedYear: number | undefined;
             let referenceMonth: string | undefined;
 
             if (fluxo.indexType === 'INCC') {
                 referenceMonth = referenceMonthFor(parcela.dueDate, imovel.inccLagMonths);
                 
-                const result = computeIndexFactor(baseYm, referenceMonth, variations);
+                const result = computeIndexFactor(baseYm, referenceMonth, variations, project);
 
                 factor = result.factor;
                 estimated = result.estimated;
+                projectedMonths = result.projectedMonths;
+                projectedVariation = result.projectedVariation === undefined ? undefined : Math.round(result.projectedVariation * 10000) / 10000;
+                projectedYear = result.projectedYear;
             }
 
             const corrected = round2(parcela.baseAmount * factor);
@@ -142,6 +149,9 @@ export class ImovelUseCase implements ImovelUseCaseInterface {
                 correctionFactor: Math.round(factor * 1e8) / 1e8,
                 correctedAmount: corrected,
                 estimated: estimated && !parcela.paid,
+                projectedMonths: parcela.paid ? 0 : projectedMonths,
+                projectedVariation: parcela.paid ? undefined : projectedVariation,
+                projectedYear: parcela.paid ? undefined : projectedYear,
                 currentAmount: parcela.paid ? (parcela.paidAmount ?? corrected) : corrected,
                 overdue: !parcela.paid && parcela.dueDate < today
             };
