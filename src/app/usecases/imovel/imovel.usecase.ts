@@ -123,7 +123,7 @@ export class ImovelUseCase implements ImovelUseCaseInterface {
 
             if (fluxo.indexType === 'INCC') {
                 referenceMonth = referenceMonthFor(parcela.dueDate, imovel.inccLagMonths);
-
+                
                 const result = computeIndexFactor(baseYm, referenceMonth, variations);
 
                 factor = result.factor;

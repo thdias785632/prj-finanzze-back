@@ -40,12 +40,10 @@ export interface IndexFactor {
 }
 
 export function computeIndexFactor(baseYm: string, referenceYm: string, variations: VariationMap): IndexFactor {
-    if (referenceYm <= baseYm) return { factor: 1, estimated: false };
-
     let factor = 1;
     let last: string | undefined;
 
-    for (let ym = addMonthsYm(baseYm, 1); ym <= referenceYm; ym = addMonthsYm(ym, 1)) {
+    for (let ym = baseYm; ym <= referenceYm; ym = addMonthsYm(ym, 1)) {
         const variation = variations.get(ym);
 
         if (variation === undefined) {
