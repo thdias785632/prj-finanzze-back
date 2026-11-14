@@ -35,26 +35,100 @@ export function round2(value: number): number {
 
 export interface IndexFactor {
     factor: number;              // fator acumulado (1 = sem correção)
-    estimated: boolean;          // faltam meses publicados entre o mês-base e o mês de referência
-    lastMonthApplied?: string;   // último mês efetivamente aplicado
+    estimated: boolean;          // true quando algum mês do período não foi divulgado (projetado ou sem base para projetar)
+    lastMonthApplied?: string;   // último mês divulgado efetivamente aplicado
+    projectedMonths: number;     // quantos meses foram preenchidos com a média do ano
+    projectedVariation?: number; // média mensal (%) usada nesses meses
+    projectedYear?: number;      // ano cuja média foi usada
 }
 
-export function computeIndexFactor(baseYm: string, referenceYm: string, variations: VariationMap): IndexFactor {
+export interface Projection {
+    variation: number;           // média mensal (%) usada como projeção
+    year: number;                // ano da média
+}
+
+export type Projector = (ym: string) => Projection | undefined;
+
+/**
+ * Projeção para meses ainda não divulgados: média aritmética das variações mensais do INCC do ano do
+ * último mês divulgado, de janeiro até esse mês. Ex.: divulgado até 2026-09 → média de jan–set/2026,
+ * aplicada a out/2026, nov/2026, ... (inclusive em anos seguintes, pois ainda não há dado deles).
+ * Se houver "buraco" no meio da série, usa o último mês divulgado antes do mês faltante.
+ * Retorna undefined quando não existe nenhum mês divulgado antes (sem base para estimar).
+ */
+export function buildProjector(variations: VariationMap): Projector {
+    const published = [...variations.keys()].sort();
+    const memo = new Map<string, Projection>();
+
+    return (ym: string) => {
+        let lastBefore: string | undefined;
+
+        for (const month of published) {
+            if (month < ym) lastBefore = month;
+            else break;
+        }
+
+        if (!lastBefore) return undefined;
+
+        const cached = memo.get(lastBefore);
+
+        if (cached) return cached;
+
+        const year = lastBefore.slice(0, 4);
+        const values = published
+            .filter((month) => month.startsWith(year) && month <= (lastBefore as string))
+            .map((month) => variations.get(month) as number);
+
+        const projection: Projection = {
+            variation: values.reduce((sum, value) => sum + value, 0) / values.length,
+            year: Number(year)
+        };
+
+        memo.set(lastBefore, projection);
+
+        return projection;
+    };
+}
+
+/**
+ * Fator acumulado do índice do mês-base (inclusive) até o mês de referência (inclusive).
+ * Meses não divulgados usam a projeção (média do ano) quando `project` é informado; nesse caso o
+ * resultado vem com `estimated: true`. Sem projeção possível, acumula até onde há dado.
+ */
+export function computeIndexFactor(baseYm: string, referenceYm: string, variations: VariationMap, project?: Projector): IndexFactor {
     let factor = 1;
     let last: string | undefined;
+    let projectedMonths = 0;
+    let projection: Projection | undefined;
 
     for (let ym = baseYm; ym <= referenceYm; ym = addMonthsYm(ym, 1)) {
-        const variation = variations.get(ym);
+        let variation = variations.get(ym);
 
         if (variation === undefined) {
-            return { factor, estimated: true, lastMonthApplied: last };
+            const estimate = project?.(ym);
+
+            if (!estimate) {
+                return { factor, estimated: true, lastMonthApplied: last, projectedMonths, projectedVariation: projection?.variation, projectedYear: projection?.year };
+            }
+
+            variation = estimate.variation;
+            projection = estimate;
+            projectedMonths++;
+        } else {
+            last = ym;
         }
 
         factor *= 1 + variation / 100;
-        last = ym;
     }
 
-    return { factor, estimated: false, lastMonthApplied: last };
+    return {
+        factor,
+        estimated: projectedMonths > 0,
+        lastMonthApplied: last,
+        projectedMonths,
+        projectedVariation: projection?.variation,
+        projectedYear: projection?.year
+    };
 }
 
 export function referenceMonthFor(dueDate: string, lagMonths: number): string {
