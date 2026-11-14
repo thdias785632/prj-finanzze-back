@@ -43,6 +43,8 @@ export const CATEGORY_MAP: Record<string, string> = {
     "Vehicle mainten": Category.Carro,
     "Wellness and fi": Category.Saúde,
     "Groceries": Category.Alimentação,
+    "Public transportation": Category.Transporte,
+    "Pet supplies and vet": Category.Boizinho,
 };
 
 export function mapCategory(pluggyCategory?: string): string {
